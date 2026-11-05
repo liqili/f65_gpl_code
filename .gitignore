@@ -1,0 +1,23 @@
+.DS_Store
+.claude/
+
+# Original TP-Link Festa F65 GPL tree, kept locally for reference (same content as FestaF65v1_GPL.tar.gz)
+/f65.festa-orig/
+
+# The toolchain tarball is too large for GitHub; keep it out of git unless split like eap772 does
+f65/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl.tar.bz2
+
+# Build outputs
+f65/build/toolchain/
+f65/rootfs/
+f65/tools/
+f65/images/eap/mtk7981_eap65x_common/mkimage/
+f65/images/eap/mtk7981_eap65x_common/*.bin
+f65/images/eap/mtk7981_eap65x_common/*.itb
+f65/images/eap/mtk7981_eap65x_common/squashfs
+f65/images/eap/mtk7981_eap65x_common/vmlinux
+f65/toolchain/make_flash_src_nand/*.o
+f65/toolchain/make_flash_src_nand/make_flash
+f65/toolchain/make_flash_src_nand/gen_softver
+f65/toolchain/make_flash_src_nand/gen_hardver
+logs/

@@ -43,6 +43,8 @@ toolchain_clean:
 toolchain:
 	@echo Uncompressing mtk toolchain, please wait...
 	@mkdir -p $(TOOLCHAIN_INSTALL)
+	@# The tarball is stored split (<100MB parts) so it fits in a GitHub repository; rejoin it if needed.
+	@[ -f $(TOOLCHAIN_PATH)/$(gcc_package).tar.bz2 ] || cat $(TOOLCHAIN_PATH)/$(gcc_package).tar.bz2_a? > $(TOOLCHAIN_PATH)/$(gcc_package).tar.bz2
 	@tar -jxf $(TOOLCHAIN_PATH)/$(gcc_package).tar.bz2 -C $(TOOLCHAIN_INSTALL)
 	@test -z "$(TOOLCHAIN_POSTBUILD)" || eval "$(TOOLCHAIN_POSTBUILD)"
 

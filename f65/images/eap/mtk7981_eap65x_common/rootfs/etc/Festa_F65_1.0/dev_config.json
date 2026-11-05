@@ -1,0 +1,35 @@
+{
+	"vlanbind":
+	{
+		"supp": false
+	},
+	"lanport":
+	{
+		"dlPortNum":0,
+		"poeOutSupp": false,
+		"poeOutBitMap":0,
+		"ulPortPhyId":0,
+		"ulPortAliasName":"ETH(PoE)",
+		"ulPortIfName":"eth0",
+		"ulPortLinkStateMask":0,
+		"ulPortInSwitch":0
+	},
+	"hwWatchDog":
+	{
+		"supp": false
+	},
+	"cloudCtrl":
+	{
+		"supp": true,
+		"micType":"EAP.FESTA.CEILINGMOUNT"
+	},
+	"festaFeatures": false,
+	"cliSetCcSupp": true,
+	"wifiLed":
+	{
+		"supp": false,
+		"dftEnable": false
+	},
+	"bleSupp":true,
+	"lbdSupp":true
+}

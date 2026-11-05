@@ -216,7 +216,7 @@ mkimage:
 	@cd $(TOOLCHAIN_PATH) && \
 		rm -rf $(mkimage_package) && \
 		tar -xf $(mkimage_package).tar.gz && \
-		cd $(mkimage_package) && make defconfig  HOSTCFLAGS="-O2" && make tools-only  HOSTCFLAGS="-O2" && \
+		cd $(mkimage_package) && make defconfig  HOSTCFLAGS="-O2 -I/usr/include/x86_64-linux-gnu" HOSTLDFLAGS="-L/lib/x86_64-linux-gnu" && make tools-only  HOSTCFLAGS="-O2 -I/usr/include/x86_64-linux-gnu" HOSTLDFLAGS="-L/lib/x86_64-linux-gnu" && \
 		cp -f tools/mkimage $(UTIL_PATH)
 
 config_check_tool:
@@ -259,11 +259,16 @@ ubi-utils_install:
 	$(call indir, $(ubi-utils_path)/ubi-utils,  cp -f ubinfo $(APPS_INSTALL));
 
 
+# Host tools that pack the NAND images (tools/ is not shipped in the GPL drop, so build it here).
+# img_gen (ECC/OOB generator used for the *_flash.bin programmer image) is a prebuilt host binary.
 nand_flash_maker:
+	mkdir -p $(TOOLS_PATH)
 	cd $(TOOLCHAIN_PATH)/make_flash_src_nand && make clean && make && \
 		cp -f make_flash $(TOOLS_PATH)/flashMaker_nand && \
 		cp -f gen_softver $(TOOLS_PATH) && \
-		cp -f gen_hardver $(TOOLS_PATH)
+		cp -f gen_hardver $(TOOLS_PATH) && \
+		cp -f img_gen $(IMG_GEN) && \
+		chmod +x $(TOOLS_PATH)/flashMaker_nand $(TOOLS_PATH)/gen_softver $(TOOLS_PATH)/gen_hardver $(IMG_GEN)
 
 ################## for additional mods defined in product.mk ######################
 						
@@ -445,7 +450,8 @@ rootfs_uclibc:
 		$(UTIL_PATH)/cplibs $(TOOLCHAIN_INSTALL)/$(TOOLCHAIN) $(ROOTFS_BUILD_PATH) $(NEED_LIBCPP); \
 	elif [[ "$(KERNELVER)" = "5.4.203" ]] ; then \
 		cp -f $(TOOLCHAIN_INSTALL)/$(gcc_package)/lib/libc.so $(ROOTFS_BUILD_PATH)/lib/libc.so; \
-		cp -f $(TOOLCHAIN_INSTALL)/$(gcc_package)/lib/librpc.so $(ROOTFS_BUILD_PATH)/lib/librpc.so; \
+		if [ -f $(TOOLCHAIN_INSTALL)/$(gcc_package)/lib/librpc.so ]; then \
+			cp -f $(TOOLCHAIN_INSTALL)/$(gcc_package)/lib/librpc.so $(ROOTFS_BUILD_PATH)/lib/librpc.so; fi; \
 		cp -f $(TOOLCHAIN_INSTALL)/$(gcc_package)/lib/libgcc_s.so.1 $(ROOTFS_BUILD_PATH)/lib/libgcc_s.so.1; \
 		$(PRODUCT_SCRIPT_PATH)/install.sh -D -l libc.so $(ROOTFS_BUILD_PATH)/lib/ld-musl-aarch64.so.1; \
 	else \
@@ -610,6 +616,21 @@ endif
 	for f in $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/*; do if test -f $$f; then chmod 774 $$f; fi; done;
 else
 	cp -Rf $(MKIMAGE_PAH) $(IMAGE_INSTALL)/ ;
+# GPL build: soft-version and the ubi data images are prebuilt in the rootfs fw_data, but the board
+# identity files must follow the board list configured in mkimage/, so refresh them in the image copy.
+# The data-partition mount points are empty directories (git does not keep them), so create them
+# like the non-GPL branch above does.
+	mkdir -p $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/$(USER_CONF_DIR) $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/$(MANU_CONF_DIR)
+	mkdir -p $(ROOTFS_BUILD_PATH)/tp_data/$(MANU_CONF_DIR) $(ROOTFS_BUILD_PATH)/tp_data/$(MANU_BACKUP_DIR) $(ROOTFS_BUILD_PATH)/tp_data/$(USER_CONF_DIR)
+ifeq ($(strip ${CONFIG_NAND_MULTI_BOARD}), y)
+	$(foreach board, $(CONFIG_MULTI_BOARD_LIST), cp -f $(MKIMG_PATH)/$(board)/productinfo.bin $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/product-info.$(board);)
+	cp -f $(MKIMG_PATH)/$(COMMON)productinfo.bin.default $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/product-info
+else
+	cp -f $(MKIMG_PATH)/productinfo.bin $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/product-info
+endif
+	cp -f $(MKIMG_PATH)/$(COMMON)supportlist.bin $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/support-list
+	cp -f $(MKIMG_PATH)/$(COMMON)partition.conf $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/partition-table
+	for f in $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/*; do if test -f $$f; then chmod 774 $$f; fi; done;
 endif
 
 rootfs_clean: rootfs_undev
@@ -663,7 +684,17 @@ image_clean:
 	@echo "make $@."
 	rm -rf $(IMAGE_INSTALL)/mkimage $(IMAGE_INSTALL)/*.bin;
 
+# GPL build: tools/config_check is not shipped, and the rootfs build copy is removed by rootfs_install,
+# so read soft-version / runtime_back.ubi from the installed rootfs (they are prebuilt in its fw_data).
+ifdef GPL_BUILD
+IMAGE_FW_DATA = $(INSTALL_ROOT)/$(FW_CONF_DIR)
+image_build: nand_flash_maker rootfs_build
+	@test -f $(IMAGE_INSTALL)/squashfs || (echo "$(IMAGE_INSTALL)/squashfs not found, run eap_install first" && exit 1)
+	@test -f $(IMAGE_INSTALL)/$(KERNEL_NAME) || (echo "$(IMAGE_INSTALL)/$(KERNEL_NAME) not found, run eap_install first" && exit 1)
+else
+IMAGE_FW_DATA = $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)
 image_build: config_check rootfs_build
+endif
 ifdef CONFIG_NM_NAND_TYPE
 	@echo "make $@.";
 
@@ -672,7 +703,10 @@ ifeq ($(strip ${CONFIG_NAND_MULTI_BOARD}), y)
 	cd $(IMAGE_BUILD_DIR)  && \
 		rm -rf ../*flash* ../*up.bin && \
 		cd $(COMMON) && $(UTIL_PATH)/ubinize -m 2048 -p 128KiB -o root.ubi root.cfg && \
-		cp $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/soft-version soft-version.bin ;
+		cp $(IMAGE_FW_DATA)/soft-version soft-version.bin ;
+ifdef GPL_BUILD
+	cp -f $(IMAGE_FW_DATA)/runtime_back.ubi $(IMAGE_BUILD_DIR)/runtime_back.ubi
+endif
 	$(foreach board, $(CONFIG_MULTI_BOARD_LIST), \
 		BOARD=$(board) ; BOARD_REV=`echo $(board) | rev`; \
 		VER_Y=`echo $${BOARD_REV} | cut -d'_' -f1`; \
@@ -709,7 +743,7 @@ else
 	[ -d $(RUNTIME_DATA_DIR) ] || mkdir -p $(RUNTIME_DATA_DIR) && \
 	[ -d $(FACTORY_DATA_DIR) ] || mkdir -p $(FACTORY_DATA_DIR) && \
 	[ -d $(FACTORY_BACKUP_DIR) ] || mkdir -p $(FACTORY_BACKUP_DIR) && \
-	cp $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/soft-version $(IMAGE_BUILD_DIR)/soft-version.bin && \
+	cp $(IMAGE_FW_DATA)/soft-version $(IMAGE_BUILD_DIR)/soft-version.bin && \
 	cp $(MKIMG_PATH)/default-config.bin $(RUNTIME_DATA_DIR)/user-config && \
 	cp $(IMAGE_INSTALL)/additional-hardversion.bin $(FACTORY_DATA_DIR)/add-hardver && \
 	cp $(IMAGE_INSTALL)/additional-hardversion.bin $(FACTORY_BACKUP_DIR)/add-hardver && \
@@ -774,6 +808,9 @@ everything_build: $(addsuffix _build, $(everything))
 	@echo make $@ done.
 
 everything_install: $(addsuffix _install, $(everything))
+	@echo make $@ done.
+
+everything_image: $(addsuffix _build, image)
 	@echo make $@ done.
 
 $(everyrules): $(PID)_% : everything_%

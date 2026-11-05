@@ -1,0 +1,4 @@
+# The image only needs the Dockerfile; the source tree is mapped in at run time
+# (docker-compose.yml volumes), so keep the multi-GB trees out of the build context.
+*
+!Dockerfile

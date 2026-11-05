@@ -1,0 +1,9 @@
+services:
+  ubuntu:
+    build: .
+    image: f65_gpl_code-ubuntu
+    # restart: always
+    volumes:
+      # The Docker VM must be able to see this folder. With colima, /Volumes/... is not shared by
+      # default: start it with e.g. `colima start --mount /Volumes/Docker2:w` (see README).
+      - ./f65:/build

@@ -3,17 +3,23 @@ eap_%: everything_%
 	@echo make $@ done.
 
 eap_help:
-	@cat compile_howto.txt 
+	@cat readme.txt
 
+# eap_image packs the kernel + squashfs produced by eap_install into the flashable
+# *_up.bin (web/CLI firmware upgrade) and *_flash.bin (programmer) images.
 eap_debug:
-	@make STRIP_EVERY_THING?=n CHECK_STOP?=1 TP_MEM_ROOTFS?=y TDB_ENABLE?=y DEBUG_MODE?=y eap_build eap_install
+	@make STRIP_EVERY_THING?=n CHECK_STOP?=1 TP_MEM_ROOTFS?=y TDB_ENABLE?=y DEBUG_MODE?=y eap_build eap_install eap_image
 
 eap_release:
-	@make STRIP_EVERY_THING?=y CHECK_STOP?=1 TP_MEM_ROOTFS?=y TDB_ENABLE?=n DEBUG_MODE?=n eap_build eap_install
+	@make STRIP_EVERY_THING?=y CHECK_STOP?=1 TP_MEM_ROOTFS?=y TDB_ENABLE?=n DEBUG_MODE?=n eap_build eap_install eap_image
 
 eap_develop:
-	@make STRIP_EVERY_THING?=y CHECK_STOP?=1 TP_MEM_ROOTFS?=y TDB_ENABLE?=n DEBUG_MODE?=n eap_build eap_install
+	@make STRIP_EVERY_THING?=y CHECK_STOP?=1 TP_MEM_ROOTFS?=y TDB_ENABLE?=n DEBUG_MODE?=n eap_build eap_install eap_image
 	@echo Done.
 
+# Repack the images from what is already built/installed (no compile step).
+eap_skipbuild:
+	@make STRIP_EVERY_THING?=y CHECK_STOP?=1 TP_MEM_ROOTFS?=y TDB_ENABLE?=n DEBUG_MODE?=n eap_install eap_image
+
 eap: eap_release
-	@echo Done. 
+	@echo Done.

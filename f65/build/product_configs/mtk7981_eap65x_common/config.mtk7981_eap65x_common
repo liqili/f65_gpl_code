@@ -32,7 +32,16 @@ export PARTITION_HEADER_FILE=$(PRODUCT_CONFIG_DIR)/mtd_partition.h
 export DTS_DIR=$(LINUX_KERNEL_PATH)/arch/$(KERNELARCH)/boot/dts/mediatek
 export DTS_BASE=$(LINUX_KERNEL_PATH)/arch/$(KERNELARCH)/boot/dts/mediatek/
 export DEVICE_DTS=mt7981-spim-nand-rfb
-export DTBPREFIX=mt7981-EAP650_3_0_0 mt7981-EAP653_3_0_0 mt7981-EAP655-WE_1_0_0 mt7981-EAP655-WE-AC_1_0_0 mt7981-EAP650-Wall_2_0_0 mt7981-EAP653_UR_1_0_0 mt7981-EAP653_UR_2_0_0 mt7981-EAP653_2_0_0 mt7981-EAP650_2_0_0
+# Festa F65 v1 is EAP653 v2 hardware (its dts is identical to mt7981-EAP653_2_0_0.dts). It is built here
+# as one more co-edition board of the Omada EAP65x firmware, the same way Festa F76 rides on the EAP772
+# firmware. mkits.sh turns mt7981-Festa_F65_1_0_0 into FIT config "config@Festa_F65_1_0_0", which is the
+# config_name in the F65 factory device-info. It is the only (and therefore default) FIT config.
+#
+# The original EAP65x board list is kept below for reference. It is not built because TP-Link's EAP650
+# GPL drop does not ship the per-model /etc/<model>/ configuration directories for those boards, so an
+# image built from this tree would not boot correctly on them.
+#DTBPREFIX=mt7981-EAP650_3_0_0 mt7981-EAP653_3_0_0 mt7981-EAP655-WE_1_0_0 mt7981-EAP655-WE-AC_1_0_0 mt7981-EAP650-Wall_2_0_0 mt7981-EAP653_UR_1_0_0 mt7981-EAP653_UR_2_0_0 mt7981-EAP653_2_0_0 mt7981-EAP650_2_0_0
+export DTBPREFIX=mt7981-Festa_F65_1_0_0
 export KERNEL_NAME=$(DEVICE_DTS)-kernel.bin
 export KERNEL_LOADADDR=0x48080000
 export KERNEL_ENTRY=0x48080000
@@ -94,9 +103,22 @@ export USER_DATA=user_data
 export PRODUCT_NAME=EAP65X_COMMON
 
 export CONFIG_NAND_MULTI_BOARD=y
-export CONFIG_MULTI_BOARD_LIST=EAP650_3_0 EAP653_3_0 EAP655-WE_1_0 EAP655-WE-AC_1_0 EAP650-Wall_2_0 EAP653_UR_1_0 EAP653_UR_2_0 EAP653_2_0 EAP650_2_0
+# Boards are named <Model>_<X>_<Y>: mkimage/<board>/ holds its factory data and the image is
+# named <Model>v<X>[.<Y>]_..._up.bin, so Festa_F65_1_0 produces FestaF65v1_..._up.bin.
+#CONFIG_MULTI_BOARD_LIST=EAP650_3_0 EAP653_3_0 EAP655-WE_1_0 EAP655-WE-AC_1_0 EAP650-Wall_2_0 EAP653_UR_1_0 EAP653_UR_2_0 EAP653_2_0 EAP650_2_0
+export CONFIG_MULTI_BOARD_LIST=Festa_F65_1_0
 
 export APPS_ADDITIONAL += mtd
+
+# GPL build: these packages are enabled by the feature config (CONFIG_LDAP_SUPPORT, CONFIG_EAP_CLI_SUPPORT)
+# but TP-Link did not ship their sources (openldap, cyrus-sasl, freeradius, libcli). Their prebuilt
+# binaries are already in images/eap/$(BOARD_TYPE)/rootfs, so keep those instead of rebuilding.
+export APPS_EXCLUDE ?= freeradius libcli
+# The prebuilt busybox in the rootfs is TP-Link's patched build (TP_BUSYBOX_MODIFY: udhcpc reports
+# lease changes to the management daemons through libunixsock_lib.so). Those patches need private
+# headers that are not in the GPL drop, so rebuilding busybox would silently drop them. Keep the
+# prebuilt one; pass EVERYTHING_EXCLUDE= on the make command line to rebuild it anyway.
+export EVERYTHING_EXCLUDE ?= busybox
 
 
 

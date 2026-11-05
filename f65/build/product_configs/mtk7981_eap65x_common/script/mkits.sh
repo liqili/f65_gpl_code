@@ -176,10 +176,12 @@ fi
 
 # Conditionally create fdt information
 if [ -n "${DTB}" ]; then
-	CONFIG_ID=($DTB)
+	# Always name fdt/config nodes after the dtb (mt7981-Festa_F65_1_0_0.dtb -> config@Festa_F65_1_0_0).
+	# u-boot boots the config named by config_name in the factory device-info, so the name must exist
+	# even when the image carries a single board (the stock script fell back to config@1 in that case).
 	for dtb in $DTB
 	do
-		CONFIG_ID=$([ ${#CONFIG_ID[@]} == 1 ] && echo ${#CONFIG_ID[@]} || basename ${dtb%%.gz} .dtb | sed -e 's/^\([^-]*-\)\{1\}//g');
+		CONFIG_ID=$(basename ${dtb%%.gz} .dtb | sed -e 's/^\([^-]*-\)\{1\}//g');
 		[ "${DTB_COMPRESS}" != "none" ] && Generate_Comp_FDT $dtb || Generate_FDT $dtb
 		Generate_Config
 

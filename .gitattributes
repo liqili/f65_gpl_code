@@ -1,0 +1,4 @@
+# Firmware source/data must be stored and checked out byte-for-byte: several image inputs
+# (supportlist.bin, productinfo.bin, partition tables, vendor sources) are CRLF text that the
+# device/tools read verbatim. Disable all end-of-line conversion, whatever core.autocrlf says.
+* -text

@@ -1,0 +1,27 @@
+{
+"EIRP": true,
+"maxStaPerRadio":128,
+"radioTable": [
+	{
+		"band": 2,
+		"mimo": 2,
+		"anttgain": 3, 
+		"mode": 23,
+		"modeCap": 180,
+		"ifname": "ra0",
+		"vapPrefix": "ra"
+	},
+	{
+		"band": 5,
+		"mimo": 2,
+		"anttgain": 2, 
+		"mode": 30,
+		"modeCap": 352,
+		"ifname": "rax0",
+		"vapPrefix": "rax"
+	}],
+	"dfsImproveSupp": true,
+	"ofdmaCfgSupp": true,
+	"meshBkhapIfname":"rax8",
+	"meshStaIfname":"apclix0"
+}

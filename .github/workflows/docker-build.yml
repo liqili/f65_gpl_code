@@ -1,0 +1,32 @@
+name: Build Omada firmware for Festa F65
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-eap:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Run build commands using docker-compose (./f65 is mapped to /build)
+      - name: Run EAP build commands
+        run: |
+          echo "Running make commands with docker-compose run..."
+          docker compose run ubuntu /bin/bash -c "cd /build/build && sudo make BOARD_TYPE=mtk7981_eap65x_common PID=eap WEB_PAGES_ID=VI_2.0 eap_prep"
+          docker compose run ubuntu /bin/bash -c "cd /build/build && sudo make BOARD_TYPE=mtk7981_eap65x_common PID=eap WEB_PAGES_ID=VI_2.0 eap_release"
+
+      # Step 3: Upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: f65-omada-build
+          path: f65/images/eap/mtk7981_eap65x_common/*.bin
