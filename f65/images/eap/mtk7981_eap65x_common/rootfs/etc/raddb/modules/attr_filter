@@ -1,0 +1,16 @@
+# -*- text -*-
+#
+#  $Id: 12627e14eda0598a9ebe50a2bd1bdf174e95a957 $
+
+#
+#  This file defines a number of instances of the "attr_filter" module.
+#
+
+# Enforce RFC requirements on the contents of Access-Reject
+# packets.  See the comments at the top of the file for
+# more details.
+#
+attr_filter attr_filter.access_reject {
+	key = %{User-Name}
+	attrsfile = ${confdir}/attrs.access_reject
+}

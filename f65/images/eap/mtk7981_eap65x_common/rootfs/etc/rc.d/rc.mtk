@@ -1,0 +1,26 @@
+#!/bin/sh
+
+mount -t debugfs none /sys/kernel/debug
+
+echo 0 > /proc/sys/net/ipv4/tcp_ecn
+echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
+echo 120 > /proc/sys/net/ipv4/tcp_keepalive_time
+
+echo 1800 > /proc/sys/net/netfilter/nf_conntrack_tcp_timeout_established
+echo 60 > /proc/sys/net/netfilter/nf_conntrack_udp_timeout
+echo 30 > /proc/sys/net/netfilter/nf_conntrack_tcp_timeout_syn_sent
+echo 30 > /proc/sys/net/netfilter/nf_conntrack_tcp_timeout_syn_recv
+echo 30 > /proc/sys/net/netfilter/nf_conntrack_tcp_timeout_fin_wait
+echo 30 > /proc/sys/net/netfilter/nf_conntrack_tcp_timeout_close_wait
+echo 30 > /proc/sys/net/netfilter/nf_conntrack_tcp_timeout_time_wait
+echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_timeout_close
+ct_buckets=$(cat /proc/sys/net/netfilter/nf_conntrack_buckets)
+echo $((ct_buckets * 3 / 2)) > /proc/sys/net/netfilter/nf_conntrack_buckets
+ct_max=$(cat /proc/sys/net/netfilter/nf_conntrack_max)
+echo $((ct_max * 3 / 2)) > /proc/sys/net/netfilter/nf_conntrack_max
+
+#read caldata from nvrammanager
+mkdir -p /tmp/wireless
+nvrammanager -p radio -r /tmp/wireless/caldata.bin
+
+

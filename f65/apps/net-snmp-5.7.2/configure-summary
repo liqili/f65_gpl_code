@@ -1,0 +1,14 @@
+  SNMP Versions Supported:    1 2c 3
+  Building for:               linux
+  Net-SNMP Version:           5.7.2
+  Network transport support:  Alias Callback UDP UDPIPv4Base UDPBase IPv4Base SocketBase
+  SNMPv3 Security Modules:     usm
+  Agent MIB code:             mibII/system_mib mibII/ip mibII/tcp mibII/udp mibII/icmp tplink-mib/clientMib/clientTable tplink-mib/clientMib/clientCount tplink-mib/clientMib/MTK/apiClientTable tplink-mib/systemTools/systemToolReboot default_modules =>  util_funcs mibII/updates mibII/kernel_linux mibII/ifTable mibII/ipAddr mibII/at mibII/var_route mibII/route_write mibII/ip mibII/ip mibII/kernel_linux mibII/tcpTable mibII/kernel_linux mibII/udpTable mibII/kernel_linux tplink-mib/clientMib/clientTable_interface tplink-mib/clientMib/clientTable_data_access tplink-mib/clientMib/clientTable_data_get tplink-mib/clientMib/clientTable_data_set snmpv3mibs mibII/snmp_mib mibII/system_mib mibII/sysORTable mibII/vacm_vars mibII/vacm_conf
+  MYSQL Trap Logging:         unavailable
+  Embedded Perl support:      disabled
+  SNMP Perl modules:          disabled
+  SNMP Python modules:        disabled
+  Crypto support from:        
+  Authentication support:     MD5
+  Encryption support:         
+  Local DNSSEC validation:    disabled

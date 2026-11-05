@@ -1,0 +1,1 @@
+#undef USER_ROOT_PERMISSION

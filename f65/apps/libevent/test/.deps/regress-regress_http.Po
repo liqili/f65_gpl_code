@@ -1,0 +1,155 @@
+regress-regress_http.o: regress_http.c \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdc-predef.h \
+ ../include/event2/event-config.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/types.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/features.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/glibc-types.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/cdefs.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/alltypes.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/endian.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdint.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/stdint.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/select.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/stat.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/stat.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/time.h \
+ ../compat/sys/queue.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/socket.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/socket.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/signal.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/signal.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/unistd.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/posix.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netdb.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/in.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/inttypes.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/fcntl.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/fcntl.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdlib.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/alloca.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdio.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/string.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/strings.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/errno.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/errno.h \
+ ../include/event2/dns.h ../include/event2/util.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stddef.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdarg.h \
+ ../include/event2/event.h ../include/event2/http.h \
+ ../include/event2/buffer.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/uio.h \
+ ../include/event2/bufferevent.h ../log-internal.h ../util-internal.h \
+ ../log-internal.h ../ipv6-internal.h ../http-internal.h \
+ ../include/event2/event_struct.h ../include/event2/keyvalq_struct.h \
+ ../util-internal.h ../defer-internal.h regress.h tinytest.h \
+ tinytest_macros.h regress_testutils.h
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdc-predef.h:
+
+../include/event2/event-config.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/features.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/glibc-types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/cdefs.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/alltypes.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/endian.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdint.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/stdint.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/select.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/stat.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/stat.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/time.h:
+
+../compat/sys/queue.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/socket.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/socket.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/signal.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/signal.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/unistd.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/posix.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netdb.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/in.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/inttypes.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/fcntl.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/fcntl.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdlib.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/alloca.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdio.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/string.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/strings.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/errno.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/errno.h:
+
+../include/event2/dns.h:
+
+../include/event2/util.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stddef.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdarg.h:
+
+../include/event2/event.h:
+
+../include/event2/http.h:
+
+../include/event2/buffer.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/uio.h:
+
+../include/event2/bufferevent.h:
+
+../log-internal.h:
+
+../util-internal.h:
+
+../log-internal.h:
+
+../ipv6-internal.h:
+
+../http-internal.h:
+
+../include/event2/event_struct.h:
+
+../include/event2/keyvalq_struct.h:
+
+../util-internal.h:
+
+../defer-internal.h:
+
+regress.h:
+
+tinytest.h:
+
+tinytest_macros.h:
+
+regress_testutils.h:

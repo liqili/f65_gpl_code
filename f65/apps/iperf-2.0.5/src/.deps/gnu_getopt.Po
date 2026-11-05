@@ -1,0 +1,40 @@
+gnu_getopt.o: gnu_getopt.c \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdc-predef.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdio.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/features.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/glibc-types.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/cdefs.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/alltypes.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdlib.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/alloca.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/unistd.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/posix.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/string.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/strings.h \
+ ../include/gnu_getopt.h
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdc-predef.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdio.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/features.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/glibc-types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/cdefs.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/alltypes.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdlib.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/alloca.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/unistd.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/posix.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/string.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/strings.h:
+
+../include/gnu_getopt.h:

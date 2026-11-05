@@ -1,0 +1,94 @@
+#!/bin/bash
+
+if [ $# -gt 0 ]
+then
+	INSTALL_ROOT=$1;
+else
+	echo "usage: mkdev ROOTFS_PATH"
+	exit 1
+fi
+
+ln -sf bin/busybox $INSTALL_ROOT/init
+
+mkdir -p $INSTALL_ROOT/dev/
+mkdir -p $INSTALL_ROOT/dev/pts
+
+mknod $INSTALL_ROOT/dev/flash_chrdev		c	239  	0	
+mknod $INSTALL_ROOT/dev/ar7100_gpio_chrdev		c	238  	0
+mknod $INSTALL_ROOT/dev/ar9350_switch_chrdev	c	92  	0	
+mknod $INSTALL_ROOT/dev/gpio					c   252		0
+mknod $INSTALL_ROOT/dev/watchdog	c	10  	130	
+mknod $INSTALL_ROOT/dev/caldata		b	31  	4
+mknod $INSTALL_ROOT/dev/console		c	5  	1		
+mknod $INSTALL_ROOT/dev/dk0			c	63 	0
+mknod $INSTALL_ROOT/dev/dk1			c	63 	1
+mknod $INSTALL_ROOT/dev/kmem		c	1  	2		
+mknod $INSTALL_ROOT/dev/mem			c	1  	1		
+
+mknod $INSTALL_ROOT/dev/mtd0		c	90 	0
+mknod $INSTALL_ROOT/dev/mtd1		c	90 	2
+mknod $INSTALL_ROOT/dev/mtd2		c	90 	4
+mknod $INSTALL_ROOT/dev/mtd3		c	90 	6
+mknod $INSTALL_ROOT/dev/mtd4		c	90 	8
+mknod $INSTALL_ROOT/dev/mtd5		c	90 	10
+mknod $INSTALL_ROOT/dev/mtd6		c	90 	12
+mknod $INSTALL_ROOT/dev/mtd7		c	90 	14
+mknod $INSTALL_ROOT/dev/mtd8		c	90 	16
+mknod $INSTALL_ROOT/dev/mtd9		c	90 	18
+mknod $INSTALL_ROOT/dev/mtd10		c	90 	20
+mknod $INSTALL_ROOT/dev/mtd11		c	90 	22
+
+
+mknod $INSTALL_ROOT/dev/mtdblock0		b	31  	0
+mknod $INSTALL_ROOT/dev/mtdblock1		b	31  	1
+mknod $INSTALL_ROOT/dev/mtdblock2		b	31  	2
+mknod $INSTALL_ROOT/dev/mtdblock3		b	31  	3
+mknod $INSTALL_ROOT/dev/mtdblock4		b	31  	4
+mknod $INSTALL_ROOT/dev/mtdblock5		b	31  	5
+mknod $INSTALL_ROOT/dev/mtdblock6		b	31  	6
+mknod $INSTALL_ROOT/dev/mtdblock7		b	31  	7
+mknod $INSTALL_ROOT/dev/mtdblock8		b	31  	8
+mknod $INSTALL_ROOT/dev/mtdblock9		b	31  	9
+mknod $INSTALL_ROOT/dev/mtdblock10		b	31  	10
+mknod $INSTALL_ROOT/dev/mtdblock11		b	31  	11
+
+mknod $INSTALL_ROOT/dev/conninfra_dev   c   164     0
+mknod $INSTALL_ROOT/dev/cpu_dma_latency   c   10    63
+mknod $INSTALL_ROOT/dev/hwrng		   c   10    183
+mknod $INSTALL_ROOT/dev/iio:device0		   c   252    0
+mkdir -p $INSTALL_ROOT/dev/mapper
+mknod $INSTALL_ROOT/dev/mapper/control		   c   10    236
+
+
+mknod $INSTALL_ROOT/dev/ubi_ctrl        c       10      62
+mknod $INSTALL_ROOT/dev/ubi0            c       243     0
+mknod $INSTALL_ROOT/dev/ubi1            c       242     0
+mknod $INSTALL_ROOT/dev/ubi2            c       241     0
+mknod $INSTALL_ROOT/dev/ubi3            c       240     0
+
+mknod $INSTALL_ROOT/dev/mtdr0		c	90  1
+mknod $INSTALL_ROOT/dev/null		c	1  	3	
+mknod $INSTALL_ROOT/dev/ppp			c	108	0	
+mknod $INSTALL_ROOT/dev/ptmx		c	5	2
+mknod $INSTALL_ROOT/dev/ptyp0		c	2	0
+mknod $INSTALL_ROOT/dev/ptyp1		c	2	1
+mknod $INSTALL_ROOT/dev/ptyp2		c	2	2
+mknod $INSTALL_ROOT/dev/ram0		b	1	0	
+mknod $INSTALL_ROOT/dev/random		c	1  	8		
+mknod $INSTALL_ROOT/dev/tty			c	5  	0		
+mknod $INSTALL_ROOT/dev/tty0		c	4	0
+mknod $INSTALL_ROOT/dev/tty1		c	4	1
+mknod $INSTALL_ROOT/dev/tty2		c	4	2
+mknod $INSTALL_ROOT/dev/ttyS0		c	4	64
+mknod $INSTALL_ROOT/dev/ttyS1		c	4	65
+mknod $INSTALL_ROOT/dev/ttyS2		c	4	66
+mknod $INSTALL_ROOT/dev/ttyp0		c	3	0
+mknod $INSTALL_ROOT/dev/urandom		c	1  	9
+mknod $INSTALL_ROOT/dev/zero		c	1	5	
+mknod $INSTALL_ROOT/dev/ttyp1		c	3	1
+mknod $INSTALL_ROOT/dev/ttyp2		c	3	2
+mknod $INSTALL_ROOT/dev/tp_domain	c	260	0
+#mknod $INSTALL_ROOT/dev/pcie_reg	c	252	0
+mknod $INSTALL_ROOT/dev/mtk_gpio_chrdev		c	253	0
+
+mknod $INSTALL_ROOT/dev/derive_key      c       229     0

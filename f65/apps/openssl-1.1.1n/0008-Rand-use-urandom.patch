@@ -1,0 +1,12 @@
+diff -Nuar a/crypto/rand/rand_unix.c b/crypto/rand/rand_unix.c
+--- a/crypto/rand/rand_unix.c	2023-09-09 16:16:14.640198590 +0800
++++ b/crypto/rand/rand_unix.c	2023-09-09 16:09:07.008578700 +0800
+@@ -471,7 +471,7 @@
+                 }
+             }
+             /* Open /dev/random and wait for it to be readable */
+-            if ((fd = open(DEVRANDOM_WAIT, O_RDONLY)) != -1) {
++            if ((fd = open("/dev/urandom", O_RDONLY)) != -1) {
+                 if (DEVRANDM_WAIT_USE_SELECT && fd < FD_SETSIZE) {
+                     FD_ZERO(&fds);
+                     FD_SET(fd, &fds);

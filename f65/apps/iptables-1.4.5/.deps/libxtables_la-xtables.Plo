@@ -1,0 +1,195 @@
+libxtables_la-xtables.lo: xtables.c \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdc-predef.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/errno.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/features.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/glibc-types.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/cdefs.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/errno.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/fcntl.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/alltypes.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/fcntl.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netdb.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/in.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/inttypes.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdint.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/stdint.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/socket.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/socket.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/endian.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdarg.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdbool.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdio.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdlib.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/alloca.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/string.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/strings.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/unistd.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/posix.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/stat.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/stat.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/types.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/select.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/wait.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/signal.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/signal.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/resource.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/time.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/resource.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/arpa/inet.h \
+ include/xtables.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/limits.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/limits.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/net/if.h \
+ include/linux/types.h \
+ /home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm/types.h \
+ /home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm-generic/types.h \
+ /home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm-generic/int-ll64.h \
+ /home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm/bitsperlong.h \
+ /home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm-generic/bitsperlong.h \
+ /home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/linux/posix_types.h \
+ /home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/linux/stddef.h \
+ /home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm/posix_types.h \
+ /home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm-generic/posix_types.h \
+ include/linux/netfilter.h include/linux/netfilter/x_tables.h \
+ include/linux/netfilter_ipv4/ip_tables.h include/linux/netfilter_ipv4.h \
+ include/linux/netfilter/xt_tcpudp.h \
+ include/linux/netfilter_ipv6/ip6_tables.h include/linux/netfilter_ipv6.h \
+ include/libiptc/libxtc.h include/libiptc/ipt_kernel_headers.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/ip.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/ip_icmp.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/tcp.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/udp.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/dlfcn.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/getopt.h
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdc-predef.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/errno.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/features.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/glibc-types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/cdefs.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/errno.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/fcntl.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/alltypes.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/fcntl.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netdb.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/in.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/inttypes.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdint.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/stdint.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/socket.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/socket.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/endian.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdarg.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdbool.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdio.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdlib.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/alloca.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/string.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/strings.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/unistd.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/posix.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/stat.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/stat.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/select.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/wait.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/signal.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/signal.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/resource.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/time.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/resource.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/arpa/inet.h:
+
+include/xtables.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/limits.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/limits.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/net/if.h:
+
+include/linux/types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm/types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm-generic/types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm-generic/int-ll64.h:
+
+/home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm/bitsperlong.h:
+
+/home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm-generic/bitsperlong.h:
+
+/home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/linux/posix_types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/linux/stddef.h:
+
+/home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm/posix_types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/../linux/kernels/linux-5.4.203/user_headers/include/asm-generic/posix_types.h:
+
+include/linux/netfilter.h:
+
+include/linux/netfilter/x_tables.h:
+
+include/linux/netfilter_ipv4/ip_tables.h:
+
+include/linux/netfilter_ipv4.h:
+
+include/linux/netfilter/xt_tcpudp.h:
+
+include/linux/netfilter_ipv6/ip6_tables.h:
+
+include/linux/netfilter_ipv6.h:
+
+include/libiptc/libxtc.h:
+
+include/libiptc/ipt_kernel_headers.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/ip.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/ip_icmp.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/tcp.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/udp.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/dlfcn.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/getopt.h:

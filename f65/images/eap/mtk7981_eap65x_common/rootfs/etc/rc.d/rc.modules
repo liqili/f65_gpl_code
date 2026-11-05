@@ -1,0 +1,120 @@
+#!/bin/sh
+
+echo "/lib/modules/5.4.203/kernel" > /tmp/kernel_module_path
+
+KERN_VER='5.4.203'
+
+echo "This Board use ${KERN_VER}"
+
+insmod /lib/modules/${KERN_VER}/kernel/mtdoops.ko mtddev=oops record_size=16384
+
+# netfilter
+insmod /lib/modules/${KERN_VER}/kernel/x_tables.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_tcpudp.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_mark.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_TCPMSS.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_comment.ko
+#insmod /lib/modules/${KERN_VER}/kernel/xt_iprange.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_mac.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_multiport.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_string.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_time.ko
+
+insmod /lib/modules/${KERN_VER}/kernel/nf_conntrack_h323.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_conntrack.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_physdev.ko
+
+
+
+
+# kernel dir: net/ipv4/netfilter/
+insmod /lib/modules/${KERN_VER}/kernel/nf_nat.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_MASQUERADE.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_REDIRECT.ko
+
+insmod /lib/modules/${KERN_VER}/kernel/nf_reject_ipv4.ko
+insmod /lib/modules/${KERN_VER}/kernel/ip_tables.ko
+insmod /lib/modules/${KERN_VER}/kernel/iptable_filter.ko
+insmod /lib/modules/${KERN_VER}/kernel/iptable_nat.ko
+insmod /lib/modules/${KERN_VER}/kernel/ipt_REJECT.ko
+
+
+# kernel dir: net/bridge/netfilter
+
+insmod /lib/modules/${KERN_VER}/kernel/nf_flow_table.ko
+insmod /lib/modules/${KERN_VER}/kernel/nf_flow_table_hw.ko
+insmod /lib/modules/${KERN_VER}/kernel/nf_log_common.ko
+insmod /lib/modules/${KERN_VER}/kernel/nf_log_ipv4.ko
+
+
+insmod /lib/modules/${KERN_VER}/kernel/iptable_mangle.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_FLOWOFFLOAD.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_LOG.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_nat.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_policy.ko
+insmod /lib/modules/${KERN_VER}/kernel/xt_state.ko
+
+
+
+insmod /lib/modules/${KERN_VER}/kernel/ebt_ip.ko
+insmod /lib/modules/${KERN_VER}/kernel/ebt_limit.ko
+insmod /lib/modules/${KERN_VER}/kernel/ebt_log.ko
+insmod /lib/modules/${KERN_VER}/kernel/ebtables.ko
+insmod /lib/modules/${KERN_VER}/kernel/ebt_vlan.ko
+
+insmod /lib/modules/${KERN_VER}/kernel/ts_kmp.ko
+
+#utility_core
+insmod /lib/modules/${KERN_VER}/kernel/utility_core.ko
+
+#tls_tuple
+insmod /lib/modules/${KERN_VER}/kernel/tls_tuple_lib.ko
+
+#portal module
+insmod /lib/modules/${KERN_VER}/kernel/portal.ko
+
+#multiPort
+insmod /lib/modules/${KERN_VER}/kernel/multiPort.ko
+
+#vlan manage
+insmod /lib/modules/${KERN_VER}/kernel/vlan_manage.ko
+
+#tp_domain
+insmod /lib/modules/${KERN_VER}/kernel/tp_domain.ko lan_ip=0xc0a80101 lan_domain=tplinkeap.net lan_domain2=omadaeap.net
+
+#dhcp capture
+insmod /lib/modules/${KERN_VER}/kernel/dhcp_capture.ko
+
+productCfgFile=$(head -n 1 /tmp/cfgFilePath)
+
+nvrammanager -r /tmp/default-config -p config-info
+# 读取开机默认的 default-config 关于设置蓝牙的值
+factory_mode=`cat /tmp/default-config | grep factory | cut -d ":" -f2`
+if [ "$factory_mode" -eq 1 ]; then
+factoryMode=1
+else
+factoryMode=0
+fi
+
+insmod /lib/modules/${KERN_VER}/kernel/gpio.ko l_cfgFile=${productCfgFile}/gpio.conf l_factoryMode=$factoryMode g_cfgPath=${productCfgFile}
+
+insmod /lib/modules/${KERN_VER}/kernel/rate_limit.ko
+
+#bootconfig
+insmod /lib/modules/${KERN_VER}/kernel/bootconfig.ko
+
+insmod /lib/modules/${KERN_VER}/kernel/conninfra.ko
+
+dl_portnum=`cat ${productCfgFile}/dev_config.json | grep dlPortNum | cut -d ":" -f2 | cut -d "," -f1`
+
+insmod /lib/modules/${KERN_VER}/kernel/mtkhnat.ko dlPortNum=$dl_portnum
+insmod /lib/modules/${KERN_VER}/kernel/mesh.ko
+
+#tp_mdns
+insmod /lib/modules/${KERN_VER}/kernel/tp_mdns_repeater.ko
+
+#tp_loopback_detect
+insmod /lib/modules/${KERN_VER}/kernel/lbd.ko
+
+#tp_sniffer
+insmod /lib/modules/${KERN_VER}/kernel/tp_sniffer.ko

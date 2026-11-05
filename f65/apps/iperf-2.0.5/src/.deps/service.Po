@@ -1,0 +1,4 @@
+service.o: service.c \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdc-predef.h
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdc-predef.h:

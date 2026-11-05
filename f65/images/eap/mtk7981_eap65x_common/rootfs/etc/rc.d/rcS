@@ -1,0 +1,297 @@
+#!/bin/sh
+
+# This script runs when init it run during the boot process.
+# Mounts everything in the fstab
+
+mount -a
+#mount -o remount +w /
+
+#
+# Mount the RAM filesystem to /tmp
+#
+
+mount -t ramfs -n none /tmp
+mount -t ramfs -n none /var
+mount -t sysfs sysfs /sys
+if [ -f "/etc/rc.d/mount-fs.sh" ];then
+	/etc/rc.d/mount-fs.sh
+fi
+
+export PATH=$PATH:/etc/ath
+mkdir -p /var/run/srv
+chmod 1777 /var/run/srv
+mkdir -p /var/run/client
+chmod 1777 /var/run/client
+mkdir -p /tmp/log/error
+mkdir -p /tmp/log/rec
+mkdir -p /tmp/log/coredump
+mkdir -p /tmp/logdump
+chmod 777 /tmp/logdump
+
+#used by fw_setenv
+mkdir -p /var/lock
+chmod 1777 /var/lock
+
+if [ -f "/sbin/disable_phy" ];then
+echo "disable all phy"
+/sbin/disable_phy
+fi
+
+if [ -f "/usr/bin/httpd_portal" ];then
+echo "/usr/bin/httpd_portal -s run"
+/usr/bin/httpd_portal -s &
+fi
+
+#replace key
+nvrammanager -n
+
+mkdir -p /var/run/lldpd
+chmod 1777 /var/run/lldpd
+
+#ready for caldata/factory data, should be early
+if [ -f "/sbin/mount_tpdata" ];then
+/sbin/mount_tpdata
+fi
+
+#config device-info for common board, should be early
+if [ -f "/sbin/config_devinfo" ];then
+/sbin/config_devinfo
+fi
+
+##在存在 device-id 的情况下,需要确保tp_trust_key模块已加载，才能正常使用nvrammanager指令，否则nvrammanager没法获取 trust-key，无法读取配置数据
+nvrammanager -r /tmp/tp_device-id  -p device-id
+if [ -e /tmp/tp_device-id ]; then
+    insmod /lib/modules/$(uname -r)/kernel/tp_trust_key.ko   deviceid=`cat /tmp/tp_device-id`
+fi
+
+nvrammanager -C
+
+#mknod
+if [ -f /etc/rc.d/mknod.sh ];then
+/etc/rc.d/mknod.sh
+fi
+ulimit -c unlimited
+echo "/tmp/log/coredump/core-%e-%p-%s-%t" > /proc/sys/kernel/core_pattern
+#dd if=/dev/mtdblock6 of=/tmp/wifi0.caldata bs=32 count=377 skip=128
+#dd if=/dev/mtdblock6 of=/tmp/wifi1.caldata bs=32 count=377 skip=640
+
+if [ -f "/sbin/hotplug2" ];then
+killall -q hotplug2
+[ -x /sbin/hotplug2 ] && /sbin/hotplug2 --override --persistent \
+                        --set-rules-file /etc/hotplug2.rules \
+                        --set-coldplug-cmd /sbin/udevtrigger \
+                        --max-children 1 >/dev/null 2>&1 &
+fi
+
+#
+# Set lo up
+#
+ifconfig lo 127.0.0.1 up
+
+#
+# insert netfilter/iptables modules
+#
+if [ -f "/etc/nrd.conf" ];then
+cp /etc/nrd.conf /tmp/nrd.conf
+fi
+
+if [ -f "/lib/firmware/AR900B/hw.2/boarddata_eu.bin" ];then
+cp /lib/firmware/AR900B/hw.2/boarddata_eu.bin /tmp/boarddata_0.bin
+cp /lib/firmware/AR900B/hw.2/boarddata_eu.bin /tmp/boarddata_1.bin
+fi
+
+/etc/rc.d/rc.modules
+
+if [ -f /etc/rc.d/rc.ext ];then
+/etc/rc.d/rc.ext
+fi
+
+#restore nvram setting, should call after wlcsm module init
+if [ -f /etc/rc.d/hndnvram.sh ];then
+/etc/rc.d/hndnvram.sh start
+fi
+
+if [ -f "/etc/rc.d/rc.ipq" ];then
+/etc/rc.d/rc.ipq
+fi
+
+if [ -f "/etc/rc.d/rc.mtk" ];then
+/etc/rc.d/rc.mtk
+fi
+
+#
+# Start Our AP Program
+#
+/usr/bin/gpiod
+/usr/bin/ntpd &
+/sbin/udhcpc -p /tmp/udhcpc.pid -s /etc/udhcpc.script -a &
+
+# ipv6
+if [ -f "/usr/bin/dhcp6c" ];then
+/usr/bin/dhcp6c -fd br0 &
+else
+echo "dhcp6c is not supported"
+fi
+
+/usr/bin/detect &
+/usr/bin/msg-center &
+/usr/bin/tpsyslogd &
+/usr/bin/radius &
+/usr/bin/auth-time &
+/usr/bin/rssift &
+/usr/bin/apscan &
+/usr/bin/wscheduler &
+/usr/bin/client-state &
+if [ -f "/usr/bin/tp_bndstrg" ];then
+/usr/bin/tp_bndstrg
+fi
+/usr/bin/cliserverd &
+
+if [ -f "/usr/bin/tp_gre" ];then
+/usr/bin/tp_gre &
+fi
+
+if [ -f "/usr/bin/eap-mesh" ];then
+/usr/bin/eap-mesh &
+else
+echo "mesh is not supported"
+fi
+
+if [ -f "/usr/bin/wids_wips" ];then
+/usr/bin/wids_wips &
+else
+echo "wids_wips is not supported"
+fi
+
+if [ -f "/usr/bin/tdpcli" ];then
+/usr/bin/tdpcli &
+else
+echo "tdpcli is not supported"
+fi
+
+if [ -f "/usr/bin/cluster-master" ];then
+/usr/bin/cluster-master &
+else
+echo "cluster-master is not supported"
+fi
+
+if [ -f "/usr/bin/cluster-slave" ];then
+/usr/bin/cluster-slave &
+else
+echo "cluster-slave is not supported"
+fi
+
+if [ -f "/usr/bin/cloud-brd" ];then
+/usr/bin/cloud-brd -c /etc/cloud_config.cfg &
+else
+echo "cloud-brd is not supported"
+fi
+
+if [ -f "/usr/bin/cloud-client" ];then
+/usr/bin/cloud-client &
+else
+echo "cloud-client is not supported"
+fi
+
+if [ -f "/usr/bin/cluster_elect" ];then
+/usr/bin/cluster_elect &
+else
+echo "cluster_elect is not supported"
+fi
+
+if [ -f "/usr/bin/backgroundscan" ];then
+/usr/bin/backgroundscan &
+else
+echo "backgroundscan is not supported"
+fi
+
+if [ -f "/usr/bin/loopback-detection" ];then
+/usr/bin/loopback-detection &
+else
+echo "loopback-detection is not supported"
+fi
+
+if [ -f "/usr/bin/energysave" ];then
+/usr/bin/energysave &
+else
+echo "energysave is not supported"
+fi
+
+if [ -f "/usr/bin/ble_IoT" ];then
+/usr/bin/ble_IoT &
+else
+echo "ble_IoT is not supported."
+fi
+
+if [ -f "/usr/bin/ble" ];then
+/usr/bin/ble &
+else
+echo "ble is not supported."
+fi
+
+/usr/bin/uclited &
+
+if [ -f "/sbin/wlanmonitor" ];then
+/sbin/wlanmonitor &
+else
+echo "wlanmonitor is not supported."
+fi
+
+echo 524288 > /proc/sys/net/ipv4/ipfrag_high_thresh
+
+/etc/rc.d/rc.eapcs &
+
+if [ -f "/usr/sbin/ap_watchdog" ];then
+/usr/sbin/ap_watchdog &
+else
+echo "ap_watchdog is not supported."
+fi
+
+if [ -f "/usr/bin/channeldeploy" ];then
+/usr/bin/channeldeploy &
+else
+echo "channeldeploy is not supported"
+fi
+
+if [ -f "/usr/bin/dot1xAuth" ];then
+/usr/bin/dot1xAuth &
+else
+echo "dot1xAuth is not supported"
+fi
+
+if [ -f "/usr/bin/smartantenna" ];then
+/usr/bin/smartantenna &
+else
+echo "smartantenna is not supported"
+fi
+
+if [ -f "/usr/bin/rfscan" ];then
+/usr/bin/rfscan &
+else
+echo "rfscan is not supported"
+fi
+
+if [ -f "/usr/bin/netcheck" ];then
+nvrammanager -r /tmp/cc -p region
+if [ x`cat /tmp/cc|grep JP` != x ]; then
+/usr/bin/netcheck &
+else
+echo "Japan disaster mode is not enabled for region not match"
+fi
+rm /tmp/cc
+else
+echo "Japan disaster mode is not supported"
+fi
+
+if [ -f "/usr/bin/troubleshooting" ];then
+/usr/bin/troubleshooting &
+else
+echo "troubleshooting is not supported"
+fi
+
+if [ -x "/sbin/radiusd" -a -x "/sbin/radmin" -a -d "/etc/raddb" ]; then
+mkdir "/var/run/radiusd" && /sbin/radiusd -d /etc/raddb
+else
+echo "inner freeradius is not supported"
+fi
+

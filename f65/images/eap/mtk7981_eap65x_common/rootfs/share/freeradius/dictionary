@@ -1,0 +1,10 @@
+$INCLUDE dictionary.compat
+# $INCLUDE dictionary.usr.illegal
+# $INCLUDE dictionary.ascend.illegal
+
+$INCLUDE dictionary.rfc2865
+$INCLUDE dictionary.rfc2868
+$INCLUDE dictionary.rfc2869
+$INCLUDE dictionary.rfc3580
+
+$INCLUDE dictionary.freeradius.internal

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ -f /tmp/kernel_module_path ]; then
+	kernel_module_path=`cat /tmp/kernel_module_path`
+	cd $kernel_module_path
+	insmod urlfilter.ko
+
+	rm /tmp/kernel_module_path
+else
+	echo "/tmp/kernel_module_path not exist, some ko maybe miss !!!" > /dev/console
+fi

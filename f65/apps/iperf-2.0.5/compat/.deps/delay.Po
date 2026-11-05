@@ -1,0 +1,160 @@
+delay.o: delay.cpp \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdc-predef.h \
+ ../include/Timestamp.hpp ../include/headers.h ../config.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/stdlib.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/cstdlib \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/aarch64-openwrt-linux-musl/bits/c++config.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/aarch64-openwrt-linux-musl/bits/os_defines.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/aarch64-openwrt-linux-musl/bits/cpu_defines.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdlib.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/features.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/glibc-types.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/cdefs.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/alltypes.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/alloca.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/bits/std_abs.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdio.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/assert.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/ctype.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/errno.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/errno.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/string.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/strings.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/time.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/math.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/cmath \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/bits/cpp_type_traits.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/ext/type_traits.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/math.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/types.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/endian.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdint.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/stdint.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/select.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/socket.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/socket.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/time.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/signal.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/signal.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/unistd.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/posix.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/syslog.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netdb.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/in.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/inttypes.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/tcp.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/arpa/inet.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/pthread.h \
+ /home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sched.h \
+ ../include/iperf-int.h ../include/gettimeofday.h ../include/inet_aton.h \
+ ../include/snprintf.h ../include/util.h ../include/delay.hpp
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdc-predef.h:
+
+../include/Timestamp.hpp:
+
+../include/headers.h:
+
+../config.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/stdlib.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/cstdlib:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/aarch64-openwrt-linux-musl/bits/c++config.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/aarch64-openwrt-linux-musl/bits/os_defines.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/aarch64-openwrt-linux-musl/bits/cpu_defines.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdlib.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/features.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/glibc-types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/cdefs.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/alltypes.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/alloca.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/bits/std_abs.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdio.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/assert.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/ctype.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/errno.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/errno.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/string.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/strings.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/time.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/math.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/cmath:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/bits/cpp_type_traits.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/aarch64-openwrt-linux-musl/include/c++/8.4.0/ext/type_traits.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/math.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/types.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/endian.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/stdint.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/stdint.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/select.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/socket.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/socket.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sys/time.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/signal.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/signal.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/unistd.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/bits/posix.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/syslog.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netdb.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/in.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/inttypes.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/netinet/tcp.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/arpa/inet.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/pthread.h:
+
+/home/dzq/share/eap2/PLATFORM/build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/include/sched.h:
+
+../include/iperf-int.h:
+
+../include/gettimeofday.h:
+
+../include/inet_aton.h:
+
+../include/snprintf.h:
+
+../include/util.h:
+
+../include/delay.hpp:

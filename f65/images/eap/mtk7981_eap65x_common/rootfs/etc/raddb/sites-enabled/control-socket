@@ -1,0 +1,8 @@
+listen {
+	type = control
+	socket = ${run_dir}/${name}.sock
+#	uid = radius
+#	gid = radius
+	# ro(default)/rw
+	mode = rw
+}

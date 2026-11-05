@@ -1,0 +1,283 @@
+############################ toochain ##################################
+MTK_MAKE_FLASH=$(UTIL_PATH)/mtk_make_flash/make_flash
+
+DTS_BASE?=$(LINUX_KERNEL_PATH)/arch/$(KERNELARCH)/boot/dts/
+DTS_DIR?=$(DTS_BASE)/ralink
+OBJCOPY_STRIP = -R .reginfo -R .notes -R .note -R .comment -R .mdebug -R .note.gnu.build-id
+
+sdk_prep:
+	rm -rf $(TOPDIR)/sdk/build_dir/*
+	if test -e $(SDK_PACKAGE_PATH)/.git; then \
+		echo "git pull sdk..."; \
+		cd $(SDK_PACKAGE_PATH) && git pull; \
+	else \
+		rm -rf $(SDK_PACKAGE_PATH)/*; \
+		echo "git checkout sdk..."; \
+		cd $(TOPDIR) && git submodule init ./sdk/mtk/$(SDK_PACKAGE) && git submodule update ./sdk/mtk/$(SDK_PACKAGE) && cd $(SDK_PACKAGE_PATH) && git checkout $(SDK_PACKAGE_BRANCH); \
+	fi;
+	
+	ln -sf $(SDK_PACKAGE_PATH) $(BD_SDK_ROOT_PATH)
+	if test -e $(TOPDIR)/linux/kernels/$(KERNEL); then \
+		rm -rf $(TOPDIR)/linux/kernels/$(KERNEL); \
+	fi;
+	ln -sf $(BD_SDK_KERNEL_PATH) $(TOPDIR)/linux/kernels/$(KERNEL)
+
+ifeq ($(strip ${CONFIG_NAND_MULTI_BOARD}), y)
+	$(foreach dtb, $(DTBPREFIX), \
+	if test -e $(CONFIGDIR)/$(dtb).dts ; then \
+		cp -f $(CONFIGDIR)/$(dtb).dts $(DTS_DIR)/; \
+	fi;)
+else
+	@if test -e $(CONFIGDIR)/$(DEVICE_DTS).dts; then \
+		cp -f $(CONFIGDIR)/$(DEVICE_DTS).dts $(DTS_DIR)/; \
+	fi;
+endif
+
+	@if test -e $(CONFIGDIR)/*.dtsi; then \
+		cp -rf $(CONFIGDIR)/*.dtsi $(DTS_DIR)/; \
+	fi;
+
+toolchain_clean:
+	@rm -rf $(TOOLCHAIN_INSTALL)/$(gcc_package)
+
+toolchain:
+	@echo Uncompressing mtk toolchain, please wait...
+	@mkdir -p $(TOOLCHAIN_INSTALL)
+	@tar -jxf $(TOOLCHAIN_PATH)/$(gcc_package).tar.bz2 -C $(TOOLCHAIN_INSTALL)
+	@test -z "$(TOOLCHAIN_POSTBUILD)" || eval "$(TOOLCHAIN_POSTBUILD)"
+
+	
+############################ u-boot ##################################
+.PHONY:uboot_toolchain uboot_prep uboot_clean uboot_build uboot_install uboot_all
+uboot_toolchain:
+	@echo Uncompressing toolchain, please wait for a few minutes ...
+	[ -d $(TOOLCHAIN_INSTALL)/$(UBOOT_TOOLCHAIN) ] || (mkdir -p $(TOOLCHAIN_INSTALL) \
+		&& tar -jxf $(TOOLCHAIN_PATH)/$(UBOOT_TOOLCHAIN).tar.bz2 -C $(TOOLCHAIN_INSTALL))
+	
+uboot_prep:
+ifeq ($(KERNELVER), 3.10.108)
+	if [ -d $(UBOOTDIR) ]; then \
+	sed "s,^CONFIG_CROSS_COMPILER_PATH=.*,CONFIG_CROSS_COMPILER_PATH=\"${UBOOT_TOOLPATH}/bin\",g" $(UBOOT_CONFIG_FILE) > $(UBOOTDIR)/.config; \
+	sed "s,CONFIG_CROSS_COMPILER_PATH .*,CONFIG_CROSS_COMPILER_PATH \"${UBOOT_TOOLPATH}/bin\"," $(UBOOT_HEADER_FILE) > $(UBOOTDIR)/autoconf.h; \
+	cp -f $(UBOOT_CONFIG_HEADFILE) $(UBOOTDIR)/include/configs/generated_config.h; \
+	fi
+else ifeq ($(KERNELVER), 5.4.203)
+	cp -f $(PRODUCT_CONFIG_DIR)/$(ATF_CONFIG_FILE) $(ATF_DIR)/
+	sed "s,^CONFIG_CROSS_COMPILER=.*,CONFIG_CROSS_COMPILER=\"${TOOLPATH}/bin/aarch64-openwrt-linux-musl-\",g" $(PRODUCT_CONFIG_DIR)/$(ATF_CONFIG_FILE) > $(ATF_DIR)/$(ATF_CONFIG_FILE)_tmp
+	-rm $(ATF_DIR)/.config
+	mv $(ATF_DIR)/$(ATF_CONFIG_FILE)_tmp $(ATF_DIR)/.config
+else
+	if [ -d $(UBOOTDIR) ]; then \
+		cp -f $(CONFIGDIR)/$(UBOOT_CONFIG) $(UBOOTDIR)/configs/; \
+		cd $(UBOOTDIR) && make $(UBOOT_CONFIG);	\
+	fi
+endif
+
+uboot_clean: uboot_toolchain
+	@if test -f $(UBOOTDIR)/Makefile; then \
+	echo Making uboot clean; \
+	cd $(UBOOTDIR) && $(MAKE) distclean; \
+	else echo "Do nothing for clean uboot"; \
+	fi
+	
+uboot_build: uboot_toolchain uboot_prep
+	[ -d $(UBOOTDIR) ] || (echo "No such dirtory $(UBOOTDIR)" && exit 1)
+	@echo Making uboot at `date`
+ifeq ($(KERNELVER),  5.4.203)
+	cd $(UBOOT_DIR) && make $(UBOOT_CONFIG) && make PRODUCT_TYPE=$(PRODUCT_NAME) WEBFAILSAFE_SERVER=1 TP_FIRMWARE_RECOVERY=1 CROSS_COMPILE=$(TOOLPATH)/bin/aarch64-openwrt-linux-musl-
+	cd $(ATF_DIR) && make
+else ifeq ($(KERNELVER), 3.10.108)
+	cd $(UBOOTDIR) && cp -rf mt7621_stage_sram_1120.bin mt7621_stage_sram.bin; 
+	cd $(UBOOTDIR) && make all CROSS_COMPILE=$(TOOLCHAIN_INSTALL)/$(UBOOT_TOOLCHAIN)/bin/$(UBOOT_TOOLPREFIX) CONFIG_CMD_HTTPD=1 
+else
+	cd $(UBOOTDIR) && make all CROSS_COMPILE=$(TOOLCHAIN_INSTALL)/$(UBOOT_TOOLCHAIN)/bin/$(UBOOT_TOOLPREFIX) CONFIG_CMD_HTTPD=1 
+endif
+	@echo End Making uboot at `date`
+
+ifeq ($(strip ${CONFIG_NAND_MULTI_BOARD}), y)
+COMMON=common/
+else
+COMMON=
+endif
+
+uboot_install:
+ifeq ($(KERNELVER), 5.4.203)
+	[ -d $(UBOOT_BIN_DIR) ] || (echo "No such dirtory $(UBOOT_BIN_DIR)" && exit 1)
+	@cp -fr $(UBOOT_BIN_DIR)/bl2.img $(UBOOT_INST_DIR)/bl2.img
+	@cp -fr $(UBOOT_BIN_DIR)/fip.bin $(UBOOT_INST_DIR)/fip.bin
+else
+	[ -d $(UBOOTDIR) ] || (echo "No such dirtory $(UBOOTDIR)" && exit 1)
+	@echo uboot: installing u-boot.bin
+	@cp $(UBOOTDIR)/$(UBOOT_FILE) $(UBOOT_INST_DIR)/u-boot.bin
+endif
+
+uboot_all: uboot_clean uboot_build uboot_install
+	
+############################ linux kernel config ##################################
+
+export KERNEL_CONFIG_TEMP = $(LINUX_KERNEL_PATH)/tmp.config
+
+ifndef GPL_BUILD
+export MODS_ADDITIONAL = $(WIRELESS_TARGET)
+endif
+
+############################ linux kernel rules ###################################
+KERNEL_PATH=$(LINUX_KERNEL_PATH)
+
+kernel_prep:
+ifeq ($(KERNELVER), 3.10.108)
+	if [ -d $(LINUX_KERNEL_PATH) ]; then \
+	sed "s,^CONFIG_CROSS_COMPILE=.*,CONFIG_CROSS_COMPILE=\"${TOOLPATH}/bin/mipsel-linux-\",g" $(KERNEL_CONFIG_FILE) > $(LINUX_KERNEL_PATH)/.config; \
+	$(ARCHMAKE) -C $(LINUX_KERNEL_PATH) oldconfig; \
+	if ! test -f "$(KCONFIG_SOURCE_FILE)"; then echo "$(KCONFIG_SOURCE_FILE) not found"; return 1; fi; \
+	cp "$(KCONFIG_SOURCE_FILE)" $(LINUX_KERNEL_PATH)/ralink/Kconfig.source; \
+	$(ARCHMAKE) -C $(LINUX_KERNEL_PATH) prepare ; \
+	rm -fr $(LINUX_KERNEL_PATH)/include/asm; \
+	rm -fr $(LINUX_KERNEL_PATH)/arch/mips/include/asm/rt2880; \
+	rm -fr $(LINUX_KERNEL_PATH)/include/linux/autoconf.h; \
+	ln -sf ../arch/mips/include/asm $(LINUX_KERNEL_PATH)/include/asm; \
+	ln -sf ./mach-ralink $(LINUX_KERNEL_PATH)/arch/mips/include/asm/rt2880; \
+	ln -sf ../../include/generated/autoconf.h $(LINUX_KERNEL_PATH)/include/linux/autoconf.h; \
+	cp "$(PARTITION_HEADER_FILE)" $(LINUX_KERNEL_PATH)/include/generated/mtd_partition.h; \
+	$(ARCHMAKE) -C $(LINUX_KERNEL_PATH) dep; \
+	fi
+else
+	[ -d $(LINUX_KERNEL_PATH)/user_headers ] || \
+		make -C $(LINUX_KERNEL_PATH) HOSTCFLAGS="-O2 -Wall -Wmissing-prototypes -Wstrict-prototypes" CROSS_COMPILE=$(TOOLPREFIX) ARCH=$(KERNELARCH) KBUILD_HAVE_NLS=no CONFIG_SHELL="bash" V='' CC=$(TOOLPREFIX)gcc INSTALL_HDR_PATH=$(LINUX_KERNEL_PATH)/user_headers headers_install; 
+	cp -f $(KERNEL_CONFIG_FILE) $(KERNEL_CONFIG_TEMP)
+	if test "$(CONFIG_TP_IGMP_SNOOPING)" = "y"; then \
+		sed -i 's/# CONFIG_TP_MULTICAST is not set/CONFIG_TP_MULTICAST=y/' $(KERNEL_CONFIG_TEMP);\
+	else \
+		sed -i 's/CONFIG_TP_MULTICAST=y/# CONFIG_TP_MULTICAST is not set/' $(KERNEL_CONFIG_TEMP);\
+	fi;
+
+	if test "$(TP_MEM_ROOTFS)" = "n" ; then \
+		sed -i 's/CONFIG_TPLINK_MEM_ROOTFS=y/# CONFIG_TPLINK_MEM_ROOTFS is not set/' $(KERNEL_CONFIG_TEMP); \
+	else \
+		sed -i 's/# CONFIG_TPLINK_MEM_ROOTFS is not set/CONFIG_TPLINK_MEM_ROOTFS=y/' $(KERNEL_CONFIG_TEMP); \
+	fi;
+
+	mv -f $(KERNEL_CONFIG_TEMP) $(LINUX_KERNEL_PATH)/arch/$(KERNELARCH)/configs/temp_defconfig
+
+	cd $(LINUX_KERNEL_PATH) && if diff -I'^#.*' .config $(KERNEL_CONFIG_FILE); then \
+		echo "kernel config file has no changes."; \
+	else \
+		$(ARCHMAKE) temp_defconfig; \
+	fi;
+endif
+
+kernel_build: kernel_prep
+	@echo " Making Kernel Build Version $(KERNEL)" at `date`
+	$(ARCHMAKE) -j1 -C $(LINUX_KERNEL_PATH) $(KERNELTARGET)
+	cd $(LINUX_KERNEL_PATH)/arch/$(KERNELARCH)/boot && \
+	cp $(KERNELTARGET) $(LINUX_KERNEL_PATH)/../ && \
+	rm -rf $(KERNELTARGET).lzma && \
+	$(UTIL_PATH)/mtk_lzma/lzma --best --keep $(KERNELTARGET) && \
+	mv $(LINUX_KERNEL_PATH)/../$(KERNELTARGET) $(LINUX_KERNEL_PATH)/$(KERNELTARGET) && \
+	cp $(KERNELTARGET).lzma  $(LINUX_KERNEL_PATH)/$(KERNELTARGET).gz 
+
+kernel_config:kernel_prep
+	#$(MAKE) -C $(LINUX_KERNEL_PATH) kernel_prep
+
+kernel_menuconfig:kernel_config
+	@cd $(LINUX_KERNEL_PATH) && $(ARCHMAKE) menuconfig && cp -f .config $(KERNEL_CONFIG_FILE)
+
+kernel_info:
+	@[ -d $(IMAGE_INSTALL) ] || mkdir -p $(IMAGE_INSTALL)
+	@cd $(LINUX_KERNEL_PATH) && \
+		echo "****************************" 		> $(IMAGE_INSTALL)/vmlinux.info && \
+		echo "Linux Entry: "${KERNLE_ENTRY}    >> $(IMAGE_INSTALL)/vmlinux.info && \
+		echo "Load Address: 0x"${KERNLE_LDADR} >> $(IMAGE_INSTALL)/vmlinux.info && \
+		echo "****************************"    >> $(IMAGE_INSTALL)/vmlinux.info;
+	@cat $(IMAGE_INSTALL)/vmlinux.info
+
+kernel_clean: 
+	rm -f $(LINUX_KERNEL_PATH)/vmlinux
+	rm -f $(LINUX_KERNEL_PATH)/vmlinux.bin
+	rm -f $(LINUX_KERNEL_PATH)/vmlinux.bin.gz
+	cd $(LINUX_KERNEL_PATH) &&  $(ARCHMAKE) mrproper
+
+#kernel_build: kernel_config
+#	$(MAKE) -C $(KERNEL_PATH) kernel_build
+#	@cd $(LINUX_KERNEL_PATH) && $(ARCHMAKE) vmlinuz;
+#	@make kernel_info
+
+kernel_modules: kernel_config
+	@cd $(LINUX_KERNEL_PATH) && $(ARCHMAKE) modules && find ./ -name "*.ko";
+
+kernel_build2:
+	@cd $(LINUX_KERNEL_PATH) && $(ARCHMAKE) vmlinux.bin && \
+		printf '0:3c02800034421ffc8c59000003200008' | xxd -r >  vmlinux2.bin && \
+		printf '0:000000000000000000000000'         | xxd -r >> vmlinux2.bin && \
+		printf '0:%08x' ${KERNLE_ENTRY}             | xxd -r >> vmlinux2.bin && \
+		cat arch/$(KERNELARCH)/boot/vmlinux.bin              >> vmlinux2.bin && \
+		cp -f vmlinux2.bin $(IMAGE_INSTALL)
+	@echo "\nBuild vmlinux2.bin Done.\n"
+
+build_dtb:
+ifeq ($(KERNELVER), 3.10.108)
+	@echo "No need build dtb"
+else
+ifeq ($(strip ${CONFIG_NAND_MULTI_BOARD}), y)
+	$(foreach dtb, $(DTBPREFIX), \
+		$(TOOLPREFIX)cpp -nostdinc -x assembler-with-cpp \
+			-I$(DTS_BASE) \
+			-I$(DTS_BASE)/include \
+			-I$(LINUX_KERNEL_PATH)/include \
+			-undef -D__DTS__ \
+			-o $(DTS_DIR)/$(dtb).dtb.tmp $(DTS_DIR)/$(dtb).dts; \
+		$(LINUX_KERNEL_PATH)/scripts/dtc/dtc -O dtb \
+			-i$(DTS_DIR) \
+			-o $(DTS_DIR)/$(dtb).dtb $(DTS_DIR)/$(dtb).dtb.tmp; \
+		rm $(DTS_DIR)/$(dtb).dtb.tmp;)
+else
+	$(TOOLPREFIX)cpp -nostdinc -x assembler-with-cpp \
+		-I$(DTS_BASE) \
+		-I$(DTS_BASE)/include \
+		-I$(LINUX_KERNEL_PATH)/include \
+		-undef -D__DTS__ \
+		-o $(DTS_DIR)/$(DEVICE_DTS).dtb.tmp $(DTS_DIR)/$(DEVICE_DTS).dts
+	$(LINUX_KERNEL_PATH)/scripts/dtc/dtc -O dtb \
+		-i$(DTS_DIR) \
+		-o $(DTS_DIR)/$(DEVICE_DTS).dtb $(DTS_DIR)/$(DEVICE_DTS).dtb.tmp
+	rm $(DTS_DIR)/$(DEVICE_DTS).dtb.tmp
+endif
+endif
+
+kernel_install: build_dtb
+ifeq ($(KERNELVER), 3.10.108)
+	#generate tp.vmlinux.bin.gz
+	cd $(LINUX_KERNEL_PATH) && \
+		$(MTK_MAKE_FLASH) -k vmlinux.bin.gz -o tp.vmlinux.bin.gz && \
+		cp vmlinux vmlinux.bin vmlinux.bin.gz tp.vmlinux.bin.gz $(IMAGE_INSTALL);
+else
+	rm -f $(LINUX_KERNEL_PATH)/$(KERNEL_NAME)
+	$(TOOLPREFIX)objcopy -O binary $(OBJCOPY_STRIP) -S $(LINUX_KERNEL_PATH)/vmlinux $(LINUX_KERNEL_PATH)/$(KERNEL_NAME)
+	$(UTIL_PATH)/lzma e $(LINUX_KERNEL_PATH)/$(KERNEL_NAME) -lc1 -lp2 -pb2 $(LINUX_KERNEL_PATH)/$(KERNEL_NAME).new
+	mv $(LINUX_KERNEL_PATH)/$(KERNEL_NAME).new  $(LINUX_KERNEL_PATH)/$(KERNEL_NAME)
+ifeq ($(strip ${CONFIG_NAND_MULTI_BOARD}), y)
+	$(PRODUCT_SCRIPT_PATH)/mkits.sh \
+		-D $(DEVICE_DTS) -o $(LINUX_KERNEL_PATH)/$(KERNEL_NAME).its -k $(LINUX_KERNEL_PATH)/$(KERNEL_NAME) \
+		$(foreach dtb, $(DTBPREFIX), -d $(DTS_DIR)/$(dtb).dtb) -C lzma \
+		-a $(KERNEL_LOADADDR) -e $(KERNEL_ENTRY) \
+		-A $(KERNELARCH) -v $(KERNELVER)
+else
+	$(PRODUCT_SCRIPT_PATH)/mkits.sh \
+		-D $(DEVICE_DTS) -o $(LINUX_KERNEL_PATH)/$(KERNEL_NAME).its -k $(LINUX_KERNEL_PATH)/$(KERNEL_NAME) \
+		-d $(DTS_DIR)/$(DEVICE_DTS).dtb -C lzma \
+		-a $(KERNEL_LOADADDR) -e $(KERNEL_ENTRY) \
+		-A $(KERNELARCH) -v $(KERNELVER)
+endif
+	PATH=$(LINUX_KERNEL_PATH)/scripts/dtc:$(PATH) $(UTIL_PATH)/mkimage -f $(LINUX_KERNEL_PATH)/$(KERNEL_NAME).its $(LINUX_KERNEL_PATH)/$(KERNEL_NAME).new
+	mv $(LINUX_KERNEL_PATH)/$(KERNEL_NAME).new $(LINUX_KERNEL_PATH)/$(KERNEL_NAME)
+	cp $(LINUX_KERNEL_PATH)/vmlinux $(LINUX_KERNEL_PATH)/$(KERNEL_NAME) $(IMAGE_INSTALL);
+endif
+
+wlan_header_clean:
+	@echo "do nothing";
+
+wlan_header_build:
+	@echo "do nothing";
+
+wlan_header_install:
+	@echo "do nothing";

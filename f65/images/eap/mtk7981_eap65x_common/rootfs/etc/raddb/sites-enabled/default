@@ -1,0 +1,18 @@
+authorize {
+	update control {
+		Auth-Type := MAC-LDAP
+	}
+}
+
+authenticate {
+	Auth-Type MAC-LDAP {
+		mac_ldap
+	}
+}
+
+post-auth {
+	mac_ldap_post_auth
+	Post-Auth-Type REJECT {
+		attr_filter.access_reject
+	}
+}

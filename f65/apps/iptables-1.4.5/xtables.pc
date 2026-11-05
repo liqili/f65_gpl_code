@@ -1,0 +1,12 @@
+
+prefix=/home/dzq/share/eap2/PLATFORM/build/../images/eap/mtk7981_eap65x_common/rootfs
+exec_prefix=${prefix}
+libdir=/home/dzq/share/eap2/PLATFORM/build/../build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/lib
+xtlibdir=${exec_prefix}/libexec/xtables
+includedir=${prefix}/include
+
+Name:		xtables
+Description:	Shared Xtables code for extensions and iproute2
+Version:	1.4.5
+Cflags:		-I${includedir}
+Libs:		-L${libdir} -lxtables

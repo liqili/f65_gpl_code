@@ -1,0 +1,84 @@
+/ {
+	nmbm_spim_nand {
+		compatible = "generic,nmbm";
+
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		lower-mtd-device = <&spi_nand>;
+		forced-create;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "BL2";
+				reg = <0x00000 0x100000>;
+				read-only;
+			};
+
+			partition@100000 {
+				label = "boot-config";
+				reg = <0x100000 0x100000>;
+			};
+
+			partition@200000 {
+				label = "boot-config1";
+				reg = <0x200000 0x100000>;
+			};
+
+			partition@300000 {
+				label = "u-boot-env";
+				reg = <0x300000 0x100000>;
+			};
+
+			partition@400000 {
+				label = "FIP0";
+				reg = <0x400000 0x200000>;
+			};
+
+			partition@600000 {
+				label = "FIP1";
+				reg = <0x600000 0x200000>;
+			};
+
+			partition@800000 {
+				label = "oops";
+				reg = <0x800000 0x100000>;
+			};
+
+			partition@900000 {
+				label = "rootfs";
+				reg = <0x900000 0x2680000>;
+			};
+
+			partition@2F80000 {
+				label = "rootfs_1";
+				reg = <0x2F80000 0x2680000>;
+			};
+
+			partition@5600000 {
+				label = "factory_data";
+				reg = <0x5600000 0x800000>;
+			};
+
+			partition@5E00000 {
+				label = "runtime_data";
+				reg = <0x5E00000 0xC00000>;
+			};
+
+			partition@6A00000 {
+				label = "backup_data";
+				reg = <0x6A00000 0x800000>;
+			};
+
+			partition@7200000 {
+				label = "runtime_backup";
+				reg = <0x7200000 0x800000>;
+			};
+
+		};
+	};
+};

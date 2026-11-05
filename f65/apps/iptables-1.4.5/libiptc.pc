@@ -1,0 +1,11 @@
+
+prefix=/home/dzq/share/eap2/PLATFORM/build/../images/eap/mtk7981_eap65x_common/rootfs
+exec_prefix=${prefix}
+libdir=/home/dzq/share/eap2/PLATFORM/build/../build/toolchain/toolchain-aarch64_cortex-a53_gcc-8.4.0_musl/lib
+includedir=${prefix}/include
+
+Name:		libiptc
+Description:	iptables ruleset ADT and kernel interface
+Version:	1.4.5
+Libs:		-L${libdir} -liptc
+Cflags:		-I${includedir}

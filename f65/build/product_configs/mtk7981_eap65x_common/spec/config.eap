@@ -1,0 +1,10 @@
+#declare igmp proxy support
+export CONFIG_TP_IGMP_SNOOPING=y
+
+#func def for eap
+export CONFIG_EAP_SUPPORT=1
+
+export CONFIG_FLASH_SIZE=128
+
+#wireless spec for smb
+export CONFIG_SUPPORT_DRIVER_MT7981=1

@@ -1,0 +1,3 @@
+mac_ldap {
+    conf_file = /tmp/mac-ldap/mac_ldap
+}
