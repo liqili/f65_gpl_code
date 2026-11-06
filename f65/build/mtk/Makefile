@@ -212,10 +212,14 @@ lzma:
 		make -f makefile.gcc && \
 		cp -f lzma $(UTIL_PATH); fi
 
+# --absolute-names: the archive's arch/*/dts/include/dt-bindings symlinks point through "..", for which
+# GNU tar otherwise first creates a mode-0000 placeholder file. colima/lima virtiofs mounts refuse to open
+# that ("Cannot open: Permission denied"); with the option tar creates the links directly. No effect on
+# what gets extracted from this (relative, well-formed) archive.
 mkimage:
 	@cd $(TOOLCHAIN_PATH) && \
 		rm -rf $(mkimage_package) && \
-		tar -xf $(mkimage_package).tar.gz && \
+		tar --absolute-names -xf $(mkimage_package).tar.gz && \
 		cd $(mkimage_package) && make defconfig  HOSTCFLAGS="-O2 -I/usr/include/x86_64-linux-gnu" HOSTLDFLAGS="-L/lib/x86_64-linux-gnu" && make tools-only  HOSTCFLAGS="-O2 -I/usr/include/x86_64-linux-gnu" HOSTLDFLAGS="-L/lib/x86_64-linux-gnu" && \
 		cp -f tools/mkimage $(UTIL_PATH)
 
@@ -686,14 +690,19 @@ image_clean:
 
 # GPL build: tools/config_check is not shipped, and the rootfs build copy is removed by rootfs_install,
 # so read soft-version / runtime_back.ubi from the installed rootfs (they are prebuilt in its fw_data).
+# (Keep a single image_build rule line: GNU make 4.1 loses the recipe context when the rule line
+# itself sits inside an ifdef/else block.)
 ifdef GPL_BUILD
 IMAGE_FW_DATA = $(INSTALL_ROOT)/$(FW_CONF_DIR)
-image_build: nand_flash_maker rootfs_build
-	@test -f $(IMAGE_INSTALL)/squashfs || (echo "$(IMAGE_INSTALL)/squashfs not found, run eap_install first" && exit 1)
-	@test -f $(IMAGE_INSTALL)/$(KERNEL_NAME) || (echo "$(IMAGE_INSTALL)/$(KERNEL_NAME) not found, run eap_install first" && exit 1)
+IMAGE_BUILD_DEPS = nand_flash_maker rootfs_build
 else
 IMAGE_FW_DATA = $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)
-image_build: config_check rootfs_build
+IMAGE_BUILD_DEPS = config_check rootfs_build
+endif
+image_build: $(IMAGE_BUILD_DEPS)
+ifdef GPL_BUILD
+	@test -f $(IMAGE_INSTALL)/squashfs || (echo "$(IMAGE_INSTALL)/squashfs not found, run eap_install first" && exit 1)
+	@test -f $(IMAGE_INSTALL)/$(KERNEL_NAME) || (echo "$(IMAGE_INSTALL)/$(KERNEL_NAME) not found, run eap_install first" && exit 1)
 endif
 ifdef CONFIG_NM_NAND_TYPE
 	@echo "make $@.";

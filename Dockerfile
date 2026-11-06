@@ -37,6 +37,18 @@ RUN apt-get update \
     && DEBIAN_FRONTEND="noninteractive" apt-get -y install lib32stdc++6 \
     && apt-get clean
 
+# Ubuntu 16.04's GNU sed 4.2.2 creates the `sed -i` temp file under umask 0700 (mode 0000). Native
+# filesystems still let the creator open it, but FUSE-like mounts such as colima/lima virtiofs refuse
+# ("couldn't open temporary file ./sedXXXXXX: Permission denied"), and the TP-Link Makefiles use
+# sed -i on the mapped source tree. sed >= 4.3 fixed this; install 4.8 ahead of /bin in PATH.
+RUN wget https://ftp.gnu.org/gnu/sed/sed-4.8.tar.gz && \
+    tar -xzf sed-4.8.tar.gz && \
+    cd sed-4.8 && \
+    ./configure --prefix=/usr/local && \
+    make && \
+    make install && \
+    /usr/local/bin/sed --version | head -1
+
 # Set docker as default
 USER docker:docker
 

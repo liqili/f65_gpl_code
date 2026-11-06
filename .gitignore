@@ -20,4 +20,16 @@ f65/toolchain/make_flash_src_nand/*.o
 f65/toolchain/make_flash_src_nand/make_flash
 f65/toolchain/make_flash_src_nand/gen_softver
 f65/toolchain/make_flash_src_nand/gen_hardver
+f65/images/eap/mtk7981_eap65x_common/mt7981-spim-nand-rfb-kernel.bin
+# Host tools that `make util` (eap_prep) extracts and builds next to their tarballs
+f65/toolchain/*/
+!f65/toolchain/make_flash_src_nand/
+!f65/toolchain/util/
+f65/toolchain/util/lzma
+f65/toolchain/util/mkfs.ubifs
+f65/toolchain/util/mkimage
+f65/toolchain/util/mksquashfs4
+f65/toolchain/util/mksquashfs42
+f65/toolchain/util/mksquashfs4.2
+f65/toolchain/util/ubinize
 logs/

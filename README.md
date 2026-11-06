@@ -77,6 +77,12 @@ The output goes to `f65/images/eap/mtk7981_eap65x_common/`:
 - `mkimage` host flags were taken from eap772. The `librpc.so` copy is optional.
 - The toolchain tarball is split into `_aa`..`_ad` parts (<100 MB each, like eap772) and rejoined by `make toolchain`.
 - Docker: same image as eap772, plus `lib32stdc++6` for the 32-bit MediaTek `lzma` helper used by the kernel step.
+- Docker, for building on a colima/lima **virtiofs** share: such mounts refuse to open a newly created file with mode 0000.
+  Ubuntu 16.04's sed 4.2.2 creates `sed -i` temp files that way ("couldn't open temporary file ./sedXXXXXX: Permission denied"),
+  a bug fixed in sed 4.3, so the image installs GNU sed 4.8 in `/usr/local/bin`. GNU tar does the same for placeholders of
+  symlinks pointing through `..` ("Cannot open: Permission denied"). Only `mkimage.tar.gz` and the cross-toolchain tarball
+  contain such links, so those two `tar` commands (`mkimage:` in `mtk/Makefile`, `toolchain:` in `mtk/Makefile.sdk`)
+  use `--absolute-names`, which makes tar create the links directly.
 
 The untouched Festa F65 GPL tree is kept in `f65.festa-orig/` (identical to `FestaF65v1_GPL.tar.gz`, git-ignored).
 

@@ -210,7 +210,7 @@ export NOCONFIG_APPS += libcli
 endif
 ######################################### lib && apps ########################################
 libev_config:
-	@cd $(libev_path) && \
+	@cd $(libev_path) && $(call drop_dep_files,.) && \
 		./configure --build=i686-linux --host=$${TOOLPREFIX%-} --prefix=$(INSTALL_ROOT) \
 		--target=$${TOOLPREFIX%-} \
 		--enable-shared=yes
@@ -453,7 +453,7 @@ iperf_config:
 		sed -i 's/\* __NTH (/\* /g'                    $(LIBC_PATH)/usr/include/bits/socket.h; \
 		sed -i 's/__cmsg)) __THROW/__cmsg) __THROW/g'  $(LIBC_PATH)/usr/include/bits/socket.h; \
 	fi;
-	@$(call indir, $(iperf_path), rm -f src/Makefile && cp -rf ./configure.origin ./configure && ./configure --build=i386 --host=$${TOOLPREFIX%-});
+	@$(call indir, $(iperf_path), rm -f src/Makefile && $(call drop_dep_files,.) && cp -rf ./configure.origin ./configure && ./configure --build=i386 --host=$${TOOLPREFIX%-});
 
 iperf_build:
 	@$(call indir, $(iperf_path), $(CROSSMAKE));
@@ -480,10 +480,23 @@ wirelesstools_install:
 		$(INSTALL_ROOT)/sbin/);
 	@$(call indir, $(wirelesstools_path), cp -f $(WIRELESSTOOLSLIB) $(LIBS_INSTALL));
 
+# Some app trees in the GPL drop (iptables, iperf, libev) still carry dependency-tracking files written on
+# TP-Link's build host: they list headers under /home/dzq/share/eap2/PLATFORM/..., so make stops with
+# "No rule to make target". They are pure build state that configure (.deps/) and the compiler (.*.d)
+# regenerate, so drop them before configuring. $(1) = package directory.
+drop_dep_files = { find $(1) -depth -type d -name .deps -exec rm -rf {} + ; \
+	find $(1) -type f \( -name '.*.d' -o -name '.*.dd' \) -exec rm -f {} + ; }
+
+# The GPL tree ships iptables already configured on TP-Link's build host: its Makefile points at
+# /home/dzq/.../missing and (aclocal.m4 being 1 s older than m4/*.m4) tries to re-run automake through
+# it, so `make distclean` fails there. Only distclean a Makefile that was configured in this tree;
+# otherwise just drop the stale dependency files (./configure regenerates the rest).
+IPTABLES_DISTCLEAN = if grep -qs "^abs_top_srcdir = $$(pwd)$$" Makefile ; then make distclean ; \
+	else $(call drop_dep_files,.) ; fi
 iptables_config:
 ifeq ($(strip $(IPTABLESVER)), 1.4.5)
 	if test -d $(LINUX_KERNEL_PATH)/user_headers; then \
-		cd $(iptables_path) && cp -rf ./configure.origin ./configure && (if test -e Makefile ; then make distclean ; fi && \
+		cd $(iptables_path) && cp -rf ./configure.origin ./configure && ($(IPTABLES_DISTCLEAN) && \
 			./configure --prefix=$(INSTALL_ROOT) \
 			--libdir=$(LIBC_PATH)/lib \
 			--build=i386 --host=$${TOOLPREFIX%-}  \
@@ -491,7 +504,7 @@ ifeq ($(strip $(IPTABLESVER)), 1.4.5)
 			--with-kernel=$(LINUX_KERNEL_PATH)/user_headers \
 			--disable-ipv6) \
 	else \
-		cd $(iptables_path) && cp -rf ./configure.origin ./configure && (if test -e Makefile ; then make distclean ; fi && \
+		cd $(iptables_path) && cp -rf ./configure.origin ./configure && ($(IPTABLES_DISTCLEAN) && \
 			./configure --prefix=$(INSTALL_ROOT) \
 			--libdir=$(LIBC_PATH)/lib \
 			--build=i386 --host=$${TOOLPREFIX%-}  \
