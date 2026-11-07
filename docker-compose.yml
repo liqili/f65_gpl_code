@@ -7,3 +7,17 @@ services:
       # The Docker VM must be able to see this folder. With colima, /Volumes/... is not shared by
       # default: start it with e.g. `colima start --mount /Volumes/Docker2:w` (see README).
       - ./f65:/build
+
+  # The built firmware's userland under qemu-user, to try the web UI without an F65.
+  # Make the image with sim/make-image.sh first (see README "Simulating the firmware in Docker").
+  sim:
+    image: f65-fw-sim:latest
+    pull_policy: never
+    platform: linux/arm64
+    container_name: f65-sim
+    command: ["/bin/sh", "/sim/sim-init.sh"]
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./sim:/sim:ro

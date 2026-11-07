@@ -33,3 +33,5 @@ f65/toolchain/util/mksquashfs42
 f65/toolchain/util/mksquashfs4.2
 f65/toolchain/util/ubinize
 logs/
+# Simulation shim, built by sim/build-nlshim.sh
+sim/nlshim.so

@@ -233,6 +233,71 @@ EAP650's userland doesn't check that flag in `eap-cs` at all; it always reports 
 
 ---
 
+## Simulating the firmware in Docker
+
+`sim/` runs the built firmware's userland in an arm64 container under qemu-user, so you can try the web UI
+and `uclited` before flashing an F65. The firmware's kernel, the flash, TP-Link's kernel modules and the Wi-Fi and
+switch hardware are all missing. The simulation covers the web UI, the login and the config daemons, not the radios
+or Omada adoption.
+
+Docker needs to run arm64 containers. Docker Desktop can by default; colima can with `binfmt: true` in
+`colima.yaml` (the default). On Linux, install the emulation with `docker run --privileged --rm tonistiigi/binfmt --install arm64`.
+
+1. Build the firmware (see [Compile Steps](#compile-steps)), then make the simulation image from it:
+   ```bash
+   sim/make-image.sh
+   ```
+   This imports the built squashfs as the Docker image `f65-fw-sim:latest` and cross-compiles `sim/nlshim.so`
+   in the build image. Run it again after each firmware build.
+2. Start the simulation with Docker Compose, using the `sim` service in `docker-compose.yml`
+   (with the Compose plugin, `docker compose` works the same):
+   ```bash
+   docker-compose up -d sim
+   docker-compose logs -f sim
+   ```
+   Or with plain Docker:
+   ```bash
+   docker run -d --name f65-sim --platform linux/arm64 -p 8080:80 -p 8443:443 -v "$PWD/sim:/sim:ro" f65-fw-sim:latest /bin/sh /sim/sim-init.sh
+   docker logs -f f65-sim
+   ```
+   It is ready when the log shows `[sim] init done`. Under emulation that takes a few minutes; `uclited` alone took
+   about 3 minutes in testing. Errors about `/dev/mtd4`, iptables, `/proc/tplink_gpio`, `/dev/ttyS1` and missing
+   `/var/run/srv/*` sockets are expected, and so is one `Segmentation fault`: `fw_printenv` crashes without the flash,
+   and `nvrammanager` then reads the board from `device-info` instead.
+3. Open https://localhost:8443 and log in as `admin` / `admin`. The certificate is self-signed.
+   `sim/login-test.sh` does the same login with curl.
+
+Settings you change in the web UI are kept while the container exists. To stop the simulation, run
+`docker-compose stop sim` (`docker stop f65-sim`). To start again from the factory defaults, run
+`docker-compose up -d --force-recreate sim` (`docker rm -f f65-sim`, then the `docker run` above).
+
+How it works:
+- `sim-init.sh` is the container's command, a cut-down `rcS`. It writes the factory data that `nvrammanager` reads to
+  plain files under `/tp_data`. The values are the F65's (`device-info`, region, hardware revision) with a made-up MAC
+  `02:65:f6:5f:00:01`. The runtime config starts as `etc/Festa_F65_1.0/factory_config.bin`. The script then starts the
+  daemons, `uclited` and `httpd_portal`.
+- `nlshim.c` is preloaded into the daemons. TP-Link's kernel modules provide netlink families that don't exist here,
+  so the shim replaces those sockets with sockets that accept and discard everything. It also sends `uclited`'s
+  hostname write to a file, because `/proc/sys` is read-only in a container. Without that write, `uclited` skips loading
+  its config and crashes at the first login.
+- `start-deps.sh` starts the daemons whose `/tmp/*_ok` markers `uclited` waits for. If a daemon doesn't create its marker
+  within 20 s, the script creates it.
+- `uclited-loop.sh` restarts `uclited` if it exits.
+
+Helpers:
+
+| Command | What it does |
+|---|---|
+| `docker exec f65-sim sh /sim/uclited-ctl.sh status\|stop\|start\|restart` | show, stop or (re)start `uclited` and its restart loop |
+| `sim/login-test.sh [password]` | log in with curl and fetch the main page |
+| `sim/trace-login.sh` | run `uclited` under qemu's syscall trace (`QEMU_STRACE`) and log in |
+| `sim/gdb-login.sh` | run `uclited` under qemu's gdb stub, attach the toolchain's gdb and log in; prints a backtrace when it stops |
+| `sim/disasm.sh usr/bin/uclited …` | disassemble firmware binaries with the toolchain `objdump` |
+
+The helpers save their output in `logs/sim/`. After `trace-login.sh` or `gdb-login.sh`, run `uclited-ctl.sh restart`.
+
+---
+
 ## Installing on a Festa F65
 
 The image is not signed by TP-Link, so certificate verification must be turned off first. The steps are the same as for F76:
