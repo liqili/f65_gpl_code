@@ -20,7 +20,7 @@ M=/tp_data/manu_data
 printf 'Festa F65(TP-Link|UN|AX3000-D):1.0\nconfig_name=config@Festa_F65_1_0_0\n' > $M/device-info
 printf '\002\145\366\137\000\001' > $M/default-mac
 printf 'US840\000\000\000' > $M/region
-printf '\000\000\000\001' > $M/add-hardver
+printf '\000\000\000\002' > $M/add-hardver
 cp $M/* /tp_data/backup_data/
 # The runtime config starts as the F65 factory default, as make_flash writes it for a new unit.
 # It is kept across container restarts, and reset when the container is recreated.

@@ -49,7 +49,8 @@ The output goes to `f65/images/eap/mtk7981_eap65x_common/`:
   The EAP65x boards are kept commented out. TP-Link's EAP650 drop does not include their `/etc/<model>/`
   configuration, so images for them would not work.
 - `mkimage/Festa_F65_1_0/`: F65 `productinfo.bin`, `device-info.bin` and `default-config.bin` from the F65 GPL, plus
-  a `build.ini` with `additional_hw_version = 0001` (the F65 value).
+  a `build.ini` with `additional_hw_version = 0002`. The F65 GPL says 0001, but the shipped F65 firmware declares 0002
+  and a stock F65 that was checked has `add-hardver` 2.
 - `mkimage/common/supportlist.bin`: only `Festa F65(TP-Link|UN|AX3000-D):1.0`, so the image installs only on an F65.
   `productinfo.bin.default` is the F65 product-info.
 - `f65/linux/.../dts/mediatek/mt7981-Festa_F65_1_0_0.dts` added.
@@ -112,6 +113,10 @@ From `mkimage/common/partition.conf`:
 | `runtime_data` | 0x05E00000 | 12 MiB | UBIFS with the user configuration |
 | `backup_data`, `runtime_back` | 0x06A00000, 0x07200000 | 8 MiB each | backups of the two above |
 
+Linux and u-boot reach these partitions through NMBM, MediaTek's bad-block remapping layer, which keeps the last 8 MiB of the
+chip as spare blocks. The usable flash is therefore 120 MiB, and the kernel trims `runtime_back` (`runtime_backup` in the
+device tree) to 6 MiB. `/proc/mtd` on a stock F65 shows the same layout.
+
 The rest of the table lists *logical* partitions, which are files that `nvrammanager` reads by name:
 - In the rootfs (`/fw_data`): `support-list`, `product-info`, `soft-version`, `partition-table`, `ble_*`.
 - In the factory UBIFS (`/tp_data/manu_data`): `device-info`, `add-hardver`, `region`, `default-mac`, `radio` (Wi-Fi calibration), `device-id`, `sp-flag`, `sp-pw`.
@@ -150,7 +155,7 @@ For example, `nvrammanager -r /tmp/x -p default-mac`. Items are written at the f
 | `region` | same | country code such as `EU276` (2 letters + ISO 3166 numeric), NUL-padded to 8 bytes; drives the radio channel/power tables. If missing, `nvrammanager` can derive it from product-info (`loadRegionFromProductInfo`). | `uclited` (`nm_api_getRegionCode`), `tddpd` |
 | `radio` | same | Wi-Fi calibration (EEPROM image). `rc.mtk` copies it to `/tmp/wireless/caldata.bin` for `mt_wifi`. Generic per-model defaults are in `/lib/firmware/<Model>_<ver>/`. | `rc.mtk`, `uclited` |
 | `device-info` | same | board identity: `Festa F65(TP-Link\|UN\|AX3000-D):1.0` + `config_name=config@Festa_F65_1_0_0` | u-boot (FIT config), `nvrammanager -C` |
-| `add-hardver` | same | 4-byte hardware revision (1 on F65), checked against the firmware's `additional_hw_version` on upgrade | `nvrammanager` |
+| `add-hardver` | same | 4-byte hardware revision (2 on F65), checked against the firmware's `additional_hw_version` on upgrade | `nvrammanager` |
 | `sp-flag`, `sp-pw` | same | two further factory items written by `tddpd`; their purpose is not documented | `nvrammanager`, `tddpd` |
 | `user-config` | flash `runtime_data` (UBIFS, backup in `runtime_back`) → `/tp_data/user_data/user-config` | the saved configuration, encrypted; factory reset restores `/etc/<Model>_<ver>/factory_config.bin` | `uclited` via `nvrammanager` |
 
@@ -160,7 +165,7 @@ Per-model data, by contrast, is **in the firmware**, in `/fw_data` of the rootfs
 
 No separate serial-number item is read by these daemons; the unit is identified by `device-id` and its MAC.
 
-The board selection (`/tmp/cfgFilePath`) comes from u-boot's `tp_config_name` environment variable, which matches the factory `device-info` `config_name`. If that isn't available, `nvrammanager -C` falls back to the product-info.
+The board selection (`/tmp/cfgFilePath`) comes from u-boot's `tp_config_name` environment variable, which matches the factory `device-info` `config_name`. If that isn't available, `nvrammanager -C` falls back to the factory `device-info`. The F65's u-boot environment names the variable `config_name` instead, so on an F65 the board is taken from `device-info`.
 
 > **Warning:** do not write a full `*_flash.bin` to a working unit unless you restore its own `factory_data` (and
 > `backup_data`) afterwards. The build fills those partitions with only `device-info` and `add-hardver`. Writing them would
