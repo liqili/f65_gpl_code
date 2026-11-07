@@ -59,6 +59,11 @@ The output goes to `f65/images/eap/mtk7981_eap65x_common/`:
   Wi-Fi profiles) from the F65 GPL. In `dev_config.json`, `festaFeatures` is `false` (Omada behaviour) and `lbdSupp`
   (loopback detection, part of the EAP65x feature set) is `true`.
 - `lib/firmware/Festa_F65_1.0/`: MT7981 EEPROM defaults. EAP650's `mt_wifi.ko` loads them from `/lib/firmware/<model>/`.
+- `web/`: the Omada EAP web UI from the eap772 tree (TP-Link's EAP650 drop has none), copied unchanged.
+  EAP650's `httpd_portal` serves the same `/web` layout and implements every `./data/*.json` endpoint the UI uses,
+  except two. Energy Save (`energysave.config`) isn't implemented; its menu entry requires the `supportEnergySave` privilege.
+  Wi-Fi 7 MLO (`wireless.mlo.ssids`) isn't either; the MLO tab only shows when the backend reports `supportMlo`.
+  The Festa "lite" menu only applies when the backend reports `supportFesta`, which EAP650's does not.
 - `etc/cloud_config.cfg`, `etc/cloud_service.cfg`, `etc/2048_newroot.cer`: Omada cloud settings taken from the F76/EAP772 build.
   Neither GPL drop ships them, but the EAP650 `rcS` starts `cloud-brd -c /etc/cloud_config.cfg`.
 
