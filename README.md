@@ -93,6 +93,146 @@ The untouched Festa F65 GPL tree is kept in `f65.festa-orig/` (identical to `Fes
 
 ---
 
+## Firmware structure and how it works
+
+### Flash layout (128 MiB SPI-NAND, 128 KiB blocks)
+
+From `mkimage/common/partition.conf`:
+
+| Partition | Offset | Size | Content |
+|---|---|---|---|
+| `BL2` | 0x00000000 | 1 MiB | MediaTek first-stage loader (`bl2.img`) |
+| `boot-config`, `boot-config1` | 0x00100000, 0x00200000 | 1 MiB each | boot selection flags (`bootconfig.bin`, `bootconfig.ko`) |
+| `u-boot-env` | 0x00300000 | 1 MiB | u-boot environment (`/etc/fw_env.config` → `/dev/mtd4`) |
+| `FIP0`, `FIP1` | 0x00400000, 0x00600000 | 2 MiB each | ARM Trusted Firmware + u-boot (`fip.bin`), two copies |
+| `oops` | 0x00800000 | 1 MiB | kernel oops log (`mtdoops.ko`) |
+| `file-system@0` | 0x00900000 | 38.5 MiB | firmware image, backup copy (`root.ubi`) |
+| `file-system@1` | 0x02F80000 | 38.5 MiB | firmware image, main copy (`root.ubi`) |
+| `factory_data` | 0x05600000 | 8 MiB | UBIFS with per-unit factory data |
+| `runtime_data` | 0x05E00000 | 12 MiB | UBIFS with the user configuration |
+| `backup_data`, `runtime_back` | 0x06A00000, 0x07200000 | 8 MiB each | backups of the two above |
+
+The rest of the table lists *logical* partitions, which are files that `nvrammanager` reads by name:
+- In the rootfs (`/fw_data`): `support-list`, `product-info`, `soft-version`, `partition-table`, `ble_*`.
+- In the factory UBIFS (`/tp_data/manu_data`): `device-info`, `add-hardver`, `region`, `default-mac`, `radio` (Wi-Fi calibration), `device-id`, `sp-flag`, `sp-pw`.
+- In the runtime UBIFS (`/tp_data/user_data`): `user-config`, `mutil-log`.
+
+`root.ubi` (from `mkimage/common/root.cfg`) is a UBI image with two static volumes:
+- `rootfs`: the squashfs (xz) root filesystem.
+- `kernel`: a FIT image holding the lzma-compressed Linux 5.4.203 kernel, loaded and entered at 0x48080000, plus one device tree per board.
+
+### Co-edition boards: how one image knows which device it runs on
+
+The EAP65x build produces one firmware for several boards. Each board has a name of the form `<Model>_<X>_<Y>`; here it's only `Festa_F65_1_0`.
+1. The factory `device-info` of each unit says which board it is, e.g. `Festa F65(TP-Link|UN|AX3000-D):1.0` and `config_name=config@Festa_F65_1_0_0`.
+2. u-boot boots that FIT configuration. `mkits.sh` names each one after its DTB, so `mt7981-Festa_F65_1_0_0.dtb` becomes `config@Festa_F65_1_0_0`.
+3. At boot, `nvrammanager -C` resolves the board and writes the per-model config directory to `/tmp/cfgFilePath`, here `/etc/Festa_F65_1.0`. The firmware carries `fw_data/product-info.<board>` for each board.
+4. Daemons and drivers then read the per-model files:
+   - `/etc/<Model>_<ver>/dev_config.json`: capabilities such as `festaFeatures`, `lbdSupp`, `bleSupp` and the LAN port layout.
+   - `radio_config.json`: radios, bands, MIMO, antenna gain.
+   - `default_config`.
+   - `factory_config.bin`: the factory-reset config, copied from `mkimage/<board>/default-config.bin`.
+   - `gpio.conf` and `gpo_rule.conf` (LEDs and button).
+   - `wireless/`: the MediaTek `mt_wifi` profiles.
+   - `/lib/firmware/<Model>_<ver>/`: MT7981 EEPROM defaults.
+
+### Where device-specific information comes from
+
+Per-unit data is **not** in the firmware image. It lives in the `factory_data` flash partition (UBIFS, mirrored in `backup_data`).
+At boot, `mount_tpdata` attaches that partition and mounts it at `/tp_data/manu_data`, and `nvrammanager` reads it by item name.
+For example, `nvrammanager -r /tmp/x -p default-mac`. Items are written at the factory, through the factory test daemon `tddpd`
+(`_refreshMacAndRegion`, `tddp_setRegion`).
+
+| Item | Where | Format / meaning | Read by |
+|---|---|---|---|
+| `default-mac` | flash `factory_data` → `/tp_data/manu_data/default-mac` | 6 raw bytes: the unit's base MAC address | `uclited`, `tddpd` |
+| `device-id` | same | 40-character unique device ID. `rcS` passes it to `tp_trust_key.ko`, which `nvrammanager` needs to decrypt `user-config`. | `rcS`, `uclited`, `nvrammanager`, `tddpd` |
+| `region` | same | country code such as `EU276` (2 letters + ISO 3166 numeric), NUL-padded to 8 bytes; drives the radio channel/power tables. If missing, `nvrammanager` can derive it from product-info (`loadRegionFromProductInfo`). | `uclited` (`nm_api_getRegionCode`), `tddpd` |
+| `radio` | same | Wi-Fi calibration (EEPROM image). `rc.mtk` copies it to `/tmp/wireless/caldata.bin` for `mt_wifi`. Generic per-model defaults are in `/lib/firmware/<Model>_<ver>/`. | `rc.mtk`, `uclited` |
+| `device-info` | same | board identity: `Festa F65(TP-Link\|UN\|AX3000-D):1.0` + `config_name=config@Festa_F65_1_0_0` | u-boot (FIT config), `nvrammanager -C` |
+| `add-hardver` | same | 4-byte hardware revision (1 on F65), checked against the firmware's `additional_hw_version` on upgrade | `nvrammanager` |
+| `sp-flag`, `sp-pw` | same | two further factory items written by `tddpd`; their purpose is not documented | `nvrammanager`, `tddpd` |
+| `user-config` | flash `runtime_data` (UBIFS, backup in `runtime_back`) → `/tp_data/user_data/user-config` | the saved configuration, encrypted; factory reset restores `/etc/<Model>_<ver>/factory_config.bin` | `uclited` via `nvrammanager` |
+
+Per-model data, by contrast, is **in the firmware**, in `/fw_data` of the rootfs:
+- `product-info` holds the model string. It also holds the RSA public keys that verify firmware signatures (`key=`, `rsaKey=`) and the model's `HWID`, which `eap-cs` reports to the controller.
+- `support-list` and `soft-version` are there too.
+
+No separate serial-number item is read by these daemons; the unit is identified by `device-id` and its MAC.
+
+The board selection (`/tmp/cfgFilePath`) comes from u-boot's `tp_config_name` environment variable, which matches the factory `device-info` `config_name`. If that isn't available, `nvrammanager -C` falls back to the product-info.
+
+> **Warning:** do not write a full `*_flash.bin` to a working unit unless you restore its own `factory_data` (and
+> `backup_data`) afterwards. The build fills those partitions with only `device-info` and `add-hardver`. Writing them would
+> erase the unit's MAC, region, `device-id` and Wi-Fi calibration. The `*_up.bin` upgrade never touches them.
+
+### Firmware upgrade file (`*_up.bin`)
+
+`make_flash` (`toolchain/make_flash_src_nand/make_flash.c`) writes:
+
+```
+uint32 file size | md5[16] | model-id area (4096 x 0xFF) | partition table (0x800) | root.ubi | support-list | soft-version | ble_*
+```
+
+The MD5 is computed over the file with TP-Link's fixed 16-byte key in place of the MD5 field. The partition table lists each included partition's offset, size and content type.
+
+When it receives an upgrade, the running firmware's `nvrammanager` checks four things:
+- the MD5;
+- the RSA signature, unless `cliclientd stopcs` has created `/tmp/stopcs`;
+- that the image's `support-list` contains the device's own product-info line;
+- the version information in `soft-version`.
+
+Only partitions marked for upgrade are included. The bootloader partitions (BL2, FIP) are only in the `*_flash.bin` programmer image.
+
+`soft-version` is 7 big-endian words:
+- `0xff`/major/minor/patch, packed into one word;
+- build date and release seconds;
+- `additional_hw_version`, the highest hardware revision the firmware supports;
+- boot, u-boot and secure versions.
+
+### Boot and runtime
+
+The boot chain is BL2 → FIP (ATF + u-boot) → FIT kernel with the board's DTB → squashfs rootfs → busybox `init` → `/etc/rc.d/rcS`. The startup scripts then:
+1. Mount tmpfs and sysfs.
+2. Start `httpd_portal -s`.
+3. Run `mount_tpdata`, which attaches the factory, runtime and backup UBI volumes at `/tp_data/{manu_data,user_data,backup_data}`. On first boot it seeds them from `/fw_data`.
+4. Load `tp_trust_key.ko` with the unit's `device-id`. `nvrammanager` needs it to decrypt the stored config.
+5. Run `nvrammanager -C`, which selects the board.
+6. Run `rc.modules`, which loads TP-Link's kernel modules (portal, VLAN, rate limit, URL filter, GPIO, HNAT, mesh, loopback detection, …).
+7. Run `rc.mtk`, which copies the radio calibration to `/tmp/wireless`.
+8. Start the daemons.
+9. Run `rc.eapcs`, which starts `tddpd`, `httpd_portal`, `tdpd` and `eap-cs`.
+
+| Daemon | Role |
+|---|---|
+| `nvrammanager` | access to the flash "partitions" above; config encryption; firmware upgrade |
+| `uclited` | central config/state daemon. It loads `user-config` (defaults from `default_config` / `factory_config.bin`), applies settings to the Wi-Fi driver and kernel modules, and serves everything else over unix sockets in `/var/run/srv`. |
+| `httpd_portal` | web UI (`/web`) and captive portal; `./data/*.json` requests are forwarded to `uclited` |
+| `eap-cs` | Omada controller client: discovery, adoption, config push, status inform. It reports `modelType=NORMAL` (or `PRO AP`). |
+| `tdpd`, `tddpd` | TP-Link device discovery / factory test protocol |
+| `cloud-brd`, `cloud-client` | Omada cloud connection (`/etc/cloud_config.cfg`) |
+| `cliserverd`, `cliclientd` | CLI over SSH (e.g. `cliclientd stopcs`) |
+| `eap-mesh`, `radius`/`radiusd`, `loopback-detection`, `wscheduler`, `rssift`, … | individual features |
+
+### Omada vs Festa
+
+Festa and Omada EAP firmware are built from the same TP-Link EAP code base.
+
+On the F65's Festa firmware, `dev_config.json` sets `"festaFeatures": true`, and its `eap-cs`, `uclited` and `httpd_portal` act on that. `eap-cs` reports `modelType=FESTA` to controllers, and the web UI hides menu items not marked `"lite"`.
+
+EAP650's userland doesn't check that flag in `eap-cs` at all; it always reports `NORMAL`. This build also sets the flag to `false`. That's what lets a local Omada controller manage the F65, as the EAP772 userland does for the F76.
+
+### Build pipeline
+
+`make … eap_prep` builds the host tools (xz, lzma, fakeroot, squashfs, u-boot `mkimage`, mtd-utils), unpacks the cross toolchain and configures the apps. Then `eap_release` runs five steps:
+1. Kernel (`Image`) and the in-tree netfilter/sched/mtdoops modules.
+2. Open-source apps (iptables, dropbear, openssl, …), installed into `images/eap/mtk7981_eap65x_common/rootfs`. That rootfs also holds TP-Link's prebuilt userland and their Wi-Fi and other binary kernel modules.
+3. `rootfs`: copy the rootfs and refresh `fw_data`. Strip binaries and create device nodes under `fakeroot`, then `mksquashfs`.
+4. `kernel_install`: build the FIT image (`mkits.sh`, `mkimage`).
+5. `image`: `ubinize` `root.ubi` and the factory/runtime UBI images, then run `make_flash` to produce `*_up.bin` and `*_flash*.bin`.
+
+---
+
 ## Installing on a Festa F65
 
 The image is not signed by TP-Link, so certificate verification must be turned off first. The steps are the same as for F76:
@@ -110,6 +250,6 @@ on the same L2 network should then discover it for adoption, as with F76 on the 
 Omada discovery utility or DHCP option 138. The model name stays `Festa F65` (from the F65 factory data), like F76 keeps `Festa F76`.
 
 Notes:
-- The EAP650 GPL drop contains no local web UI (`/web`), so the flashed AP is managed through the Omada controller, SSH or CLI.
+- The local web UI is eap772's Omada EAP UI (see above); it has not been tested on an F65 yet.
 - The up.bin does not touch the bootloader (BL2/FIP are only in the `_flash.bin` programmer image), so the stock F65 u-boot stays.
 - To go back to stock, upload the official F65 firmware. This image keeps the F65 product-info, including its firmware-signing key.
