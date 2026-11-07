@@ -620,12 +620,21 @@ endif
 	for f in $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/*; do if test -f $$f; then chmod 774 $$f; fi; done;
 else
 	cp -Rf $(MKIMAGE_PAH) $(IMAGE_INSTALL)/ ;
-# GPL build: soft-version and the ubi data images are prebuilt in the rootfs fw_data, but the board
-# identity files must follow the board list configured in mkimage/, so refresh them in the image copy.
+# GPL build: the ubi data images are prebuilt in the rootfs fw_data, but the board identity files
+# must follow the board list configured in mkimage/, so refresh them in the image copy.
 # The data-partition mount points are empty directories (git does not keep them), so create them
 # like the non-GPL branch above does.
 	mkdir -p $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/$(USER_CONF_DIR) $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/$(MANU_CONF_DIR)
 	mkdir -p $(ROOTFS_BUILD_PATH)/tp_data/$(MANU_CONF_DIR) $(ROOTFS_BUILD_PATH)/tp_data/$(MANU_BACKUP_DIR) $(ROOTFS_BUILD_PATH)/tp_data/$(USER_CONF_DIR)
+# soft-version is generated here rather than taken from the prebuilt blob in fw_data. The upgrade
+# check reads the *installed* /fw_data/soft-version as the current versions and refuses an image
+# whose additional_hw_version or secure_version is lower, or whose soft_version is identical, so
+# leaving the blob alone would silently ignore mkimage/common/build.ini and pin every GPL build to
+# the versions the vendor tree happened to ship. Both copies are written: the staging rootfs, which
+# becomes the squashfs, and the installed rootfs, which image_build reads through IMAGE_FW_DATA.
+	$(GENSOFTVER) -d -o $(IMAGE_INSTALL)/soft-version.bin -a $(IMAGE_INSTALL)/additional-hardversion.bin -c $(MKIMG_PATH)/$(COMMON)build.ini
+	cp -f $(IMAGE_INSTALL)/soft-version.bin $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/soft-version
+	cp -f $(IMAGE_INSTALL)/soft-version.bin $(INSTALL_ROOT)/$(FW_CONF_DIR)/soft-version
 ifeq ($(strip ${CONFIG_NAND_MULTI_BOARD}), y)
 	$(foreach board, $(CONFIG_MULTI_BOARD_LIST), cp -f $(MKIMG_PATH)/$(board)/productinfo.bin $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/product-info.$(board);)
 	cp -f $(MKIMG_PATH)/$(COMMON)productinfo.bin.default $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/product-info
