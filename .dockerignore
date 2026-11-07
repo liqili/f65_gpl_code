@@ -1,4 +1,6 @@
-# The image only needs the Dockerfile; the source tree is mapped in at run time
-# (docker-compose.yml volumes), so keep the multi-GB trees out of the build context.
+# The Dockerfile only installs packages and builds OpenSSL/sed from source; it never COPYs or ADDs
+# anything from the repo. The f65 source tree reaches the container through the compose bind mount
+# (./f65 -> /build), not the build context. So exclude everything from the build context to keep it
+# tiny and fast (otherwise docker sends the whole multi-GB repo to the daemon on every build).
 *
 !Dockerfile

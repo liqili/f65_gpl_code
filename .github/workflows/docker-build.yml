@@ -4,29 +4,79 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+
+# A new push to the same branch/tag cancels an in-progress build of it.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # needed only by the tag -> release step below
 
 jobs:
   build-eap:
     runs-on: ubuntu-latest
+    # eap_prep rejoins the split toolchain and builds the host tools; eap_release does the five
+    # image steps. A cold run (building the ubuntu:16.04 image, OpenSSL 1.0.2 and sed from source,
+    # then the whole tree) is well under an hour, but give it headroom.
+    timeout-minutes: 120
 
     steps:
-      # Step 1: Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Step 2: Run build commands using docker-compose (./f65 is mapped to /build)
-      - name: Run EAP build commands
+      # The build tree (kernel source, extracted toolchain, image outputs) is large. The default
+      # runner image leaves ~14 GB free on /, which the Docker image plus the build can crowd.
+      # Drop toolsets this build never uses to buy headroom; never fail the build over it.
+      - name: Free up disk space
         run: |
-          echo "Running make commands with docker-compose run..."
-          docker compose run ubuntu /bin/bash -c "cd /build/build && sudo make BOARD_TYPE=mtk7981_eap65x_common PID=eap WEB_PAGES_ID=VI_2.0 eap_prep"
-          docker compose run ubuntu /bin/bash -c "cd /build/build && sudo make BOARD_TYPE=mtk7981_eap65x_common PID=eap WEB_PAGES_ID=VI_2.0 eap_release"
+          echo "Before:"; df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android \
+                      /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
+          echo "After:"; df -h /
 
-      # Step 3: Upload artifacts
-      - name: Upload artifacts
+      # Build the environment image on its own so a Dockerfile failure is reported as such,
+      # separately from the firmware build. The Dockerfile COPYs nothing (see .dockerignore),
+      # so the build context stays tiny.
+      - name: Build the Docker build environment
+        run: docker compose build
+
+      - name: Build the firmware
+        run: |
+          docker compose run ubuntu /bin/bash -c \
+            "cd /build/build && sudo make BOARD_TYPE=mtk7981_eap65x_common PID=eap WEB_PAGES_ID=VI_2.0 eap_prep"
+          docker compose run ubuntu /bin/bash -c \
+            "cd /build/build && sudo make BOARD_TYPE=mtk7981_eap65x_common PID=eap WEB_PAGES_ID=VI_2.0 eap_release"
+
+      - name: List build output
+        run: ls -l f65/images/eap/mtk7981_eap65x_common/*.bin
+
+      # Uploads the installable up.bin together with the programmer images. The up.bin is the one
+      # to flash in the web UI; the *_flash*.bin overwrite factory data and are for a programmer only.
+      - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: f65-omada-build
+          name: f65-omada-firmware-${{ github.sha }}
           path: f65/images/eap/mtk7981_eap65x_common/*.bin
+          if-no-files-found: error
+          retention-days: 30
+
+      # On a version tag (e.g. git tag v1.0.3 && git push --tags), publish the up.bin as a release
+      # asset. Uses the built-in GITHUB_TOKEN via the gh CLI; no third-party action.
+      - name: Attach firmware to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+              f65/images/eap/mtk7981_eap65x_common/*_up.bin \
+              --title "Festa F65 Omada firmware ${GITHUB_REF_NAME}" \
+              --notes "Automated build. Flash the *_up.bin in the device web UI; never the *_flash.bin." \
+          || gh release upload "${GITHUB_REF_NAME}" \
+              f65/images/eap/mtk7981_eap65x_common/*_up.bin --clobber
