@@ -187,6 +187,23 @@ When it receives an upgrade, the running firmware's `nvrammanager` checks four t
 - that the image's `support-list` contains the device's own product-info line;
 - the version information in `soft-version`.
 
+The version check is an anti-rollback ratchet. `nm_fwup_verifyFwupFile` reads the *installed*
+`/fw_data/soft-version` as the current versions and refuses the upload unless
+
+    additional_hw_version(new) >= additional_hw_version(installed)
+    secure_version(new)        >= secure_version(installed)
+    soft_version(new)          != soft_version(installed)
+
+(its log lines are `AddiHardwareVer check: NEW(0x%x) >= CUR(0x%x)`, `Secure version check: …` and
+`the softver of the firmware is the same`). `cliclientd stopcs` only skips the RSA signature; these
+comparisons still run. So an image can only be installed over the web if its hardware and secure
+versions are at least as high as what is already on the device — a device cannot be moved *down* to a
+lower-versioned image, including the stock firmware, through the upgrade page. This build therefore
+declares the same versions the shipped F65 1.0.2 firmware uses (hardware 2, secure 0; see
+`mkimage/common/build.ini`), so it installs over stock and leaves stock installable afterwards. A
+device that still carries the old EAP650-GPL numbers (1.4.90 / hardware 3 / secure 1) will refuse
+both this image and stock until it is reflashed below those numbers over U-Boot/UART.
+
 Only partitions marked for upgrade are included. The bootloader partitions (BL2, FIP) are only in the `*_flash.bin` programmer image.
 
 `soft-version` is 7 big-endian words:
@@ -313,14 +330,42 @@ The image is not signed by TP-Link, so certificate verification must be turned o
    ```bash
    cliclientd stopcs
    ```
-4. In the Festa web UI, upload `f65/images/eap/mtk7981_eap65x_common/FestaF65v1_1.4.90_[20251222-rel79986]_up.bin`.
+4. In the Festa web UI, upload the `..._up.bin` from `f65/images/eap/mtk7981_eap65x_common/`
+   (e.g. `FestaF65v1_1.0.3_[20261107-rel32609]_up.bin`; the date/seconds in the name change each build).
    **Never upload the `_flash.bin` files: they overwrite the factory data.**
+
+This works on a device still running the stock F65 firmware, which declares hardware 2 / secure 0 —
+the same versions this build declares, so the version check passes (see the ratchet note above). It
+does **not** work on a device that already has an older build of this tree installed (1.4.90 /
+hardware 3 / secure 1): that device refuses this image on version alone, with or without `stopcs`, and
+has to be reflashed over U-Boot/UART first.
 
 After reboot the AP runs the Omada EAP65x userland and reports itself as a normal (non-Festa) EAP. A local Omada controller
 on the same L2 network should then discover it for adoption, as with F76 on the EAP772 firmware. For L3 adoption, use the
 Omada discovery utility or DHCP option 138. The model name stays `Festa F65` (from the F65 factory data), like F76 keeps `Festa F76`.
 
+### Shell access
+
+With SSH enabled in the web UI, a plain `ssh admin@<device-ip>` opens the Omada EAP CLI (`EAP>`; type `?` for its
+commands). Its `debug` shell needs a challenge signed with TP-Link's key, so this build's dropbear
+(`f65/apps/dropbear-2018.76/svr-chansession.c`) instead runs any command given on the `ssh` line as root:
+
+```bash
+ssh -t admin@<device-ip> sh
+```
+```bash
+ssh admin@<device-ip> 'dmesg | tail -50'
+```
+
+The password is the web UI's admin password. The `HostKeyAlgorithms` option may be needed:
+`ssh -o HostKeyAlgorithms=+ssh-rsa -t admin@<device-ip> sh`.
+
 Notes:
-- The local web UI is eap772's Omada EAP UI (see above); it has not been tested on an F65 yet.
+- The local web UI is eap772's Omada EAP UI (see above). On an F65 it logs in and starts with the setup wizard.
+  The status page's "Hardware Version" is `1.0`, from the factory `device-info` (`…:1.0`); the firmware version is `1.0.3`.
 - The up.bin does not touch the bootloader (BL2/FIP are only in the `_flash.bin` programmer image), so the stock F65 u-boot stays.
-- To go back to stock, upload the official F65 firmware. This image keeps the F65 product-info, including its firmware-signing key.
+- Going back to stock is only possible from the web UI while the device still records hardware 2 / secure 0
+  (which this build preserves). A device left on the old EAP650-GPL numbers (1.4.90 / hardware 3 / secure 1) has
+  tripped the version ratchet and the stock firmware is refused there — see the anti-rollback note in the upgrade
+  section. Recovering such a device needs U-Boot (TFTP recovery) or the UART console, which write flash beneath the
+  check. This image keeps the F65 product-info, including its firmware-signing key.

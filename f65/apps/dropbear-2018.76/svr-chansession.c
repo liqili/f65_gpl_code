@@ -1001,13 +1001,18 @@ static void execchild(const void *user_data) {
 #endif
 
 #ifdef CONFIG_EAP_CLI_SUPPORT
-	/* enter CLI system*/
-	run_cli_server(chansess->tty);
-#else
-	usershell = m_strdup(get_user_shell());
-
-	run_shell_command(chansess->cmd, ses.maxfd, usershell);
+	/* A plain login enters the CLI system. F65 build: a session that asks for a command
+	 * ("ssh admin@ap <cmd>", or "ssh -t admin@ap sh" for a shell) runs it with root's shell,
+	 * since the CLI's own "debug" shell needs a challenge signed by TP-Link. */
+	if (chansess->cmd == NULL) {
+		run_cli_server(chansess->tty);
+	} else
 #endif
+	{
+		usershell = m_strdup(get_user_shell());
+
+		run_shell_command(chansess->cmd, ses.maxfd, usershell);
+	}
 
 	/* only reached on error */
 	dropbear_exit("Child failed");
