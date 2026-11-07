@@ -632,6 +632,10 @@ else
 # leaving the blob alone would silently ignore mkimage/common/build.ini and pin every GPL build to
 # the versions the vendor tree happened to ship. Both copies are written: the staging rootfs, which
 # becomes the squashfs, and the installed rootfs, which image_build reads through IMAGE_FW_DATA.
+# gen_softver is one of the nand_flash_maker host tools, which the GPL drop does not ship and which
+# image_build builds later, so on a clean tree it does not exist yet at this point in rootfs_install;
+# build it on demand if it is missing (a full build will have it; image_build rebuilds it anyway).
+	@[ -x $(GENSOFTVER) ] || $(MAKE) nand_flash_maker
 	$(GENSOFTVER) -d -o $(IMAGE_INSTALL)/soft-version.bin -a $(IMAGE_INSTALL)/additional-hardversion.bin -c $(MKIMG_PATH)/$(COMMON)build.ini
 	cp -f $(IMAGE_INSTALL)/soft-version.bin $(ROOTFS_BUILD_PATH)/$(FW_CONF_DIR)/soft-version
 	cp -f $(IMAGE_INSTALL)/soft-version.bin $(INSTALL_ROOT)/$(FW_CONF_DIR)/soft-version
