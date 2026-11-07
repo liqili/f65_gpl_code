@@ -243,7 +243,8 @@ The image is not signed by TP-Link, so certificate verification must be turned o
    ```bash
    cliclientd stopcs
    ```
-4. Upload `FestaF65v1_..._up.bin` through the web UI firmware upgrade.
+4. In the Festa web UI, upload `f65/images/eap/mtk7981_eap65x_common/FestaF65v1_1.4.90_[20251222-rel79986]_up.bin`.
+   **Never upload the `_flash.bin` files: they overwrite the factory data.**
 
 After reboot the AP runs the Omada EAP65x userland and reports itself as a normal (non-Festa) EAP. A local Omada controller
 on the same L2 network should then discover it for adoption, as with F76 on the EAP772 firmware. For L3 adoption, use the
