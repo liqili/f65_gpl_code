@@ -66,7 +66,11 @@ The output goes to `f65/images/eap/mtk7981_eap65x_common/`:
   Wi-Fi 7 MLO (`wireless.mlo.ssids`) isn't either; the MLO tab only shows when the backend reports `supportMlo`.
   The Festa "lite" menu only applies when the backend reports `supportFesta`, which EAP650's does not.
 - `etc/cloud_config.cfg`, `etc/cloud_service.cfg`, `etc/2048_newroot.cer`: Omada cloud settings taken from the F76/EAP772 build.
-  Neither GPL drop ships them, but the EAP650 `rcS` starts `cloud-brd -c /etc/cloud_config.cfg`.
+  Neither GPL drop ships them, but the EAP650 `rcS` started `cloud-brd -c /etc/cloud_config.cfg` on every boot.
+- `etc/rc.d/rcS` and `etc/rc.d/rc.eapcs`: `cloud-brd` is no longer started from `rcS`. `rc.eapcs` starts it after
+  `uclited` unless `/tmp/cloudDisable` exists, as a shipped F65 does, and `rcS` writes that marker unless
+  `/tp_data/user_data/cloudEnable` is present. `CLOUDMANAGE.enable` in `etc/Festa_F65_1.0/default_config` is `false`.
+  See [Cloud connection](#cloud-connection).
 
 **Build fixes**
 - `script/mkits.sh` now always names FIT configs after their DTB. The stock script used `config@1` when there was only one
@@ -243,6 +247,43 @@ Festa and Omada EAP firmware are built from the same TP-Link EAP code base.
 On the F65's Festa firmware, `dev_config.json` sets `"festaFeatures": true`, and its `eap-cs`, `uclited` and `httpd_portal` act on that. `eap-cs` reports `modelType=FESTA` to controllers, and the web UI hides menu items not marked `"lite"`.
 
 EAP650's userland doesn't check that flag in `eap-cs` at all; it always reports `NORMAL`. This build also sets the flag to `false`. That's what lets a local Omada controller manage the F65, as the EAP772 userland does for the F76.
+
+### Cloud connection
+
+`cloud-brd` is the daemon that talks to TP-Link's Omada cloud (`n-device-omada.tplinkcloud.com`, from
+`/etc/cloud_config.cfg`). In this build it does not run unless it has been opted into on the unit:
+
+```sh
+touch /tp_data/user_data/cloudEnable   # then reboot
+```
+
+`/tp_data/user_data` is the UBIFS runtime-data volume, mounted read-write by `mount_tpdata` well before this runs, so
+the opt-in survives a reboot and a firmware upgrade. A factory reset clears it, which puts the cloud connection back
+off — `/etc/Festa_F65_1.0/default_config` has `CLOUDMANAGE.enable` `false` too, so a reset leaves the stored cloud
+setting off as well. A local Omada controller does not need `cloud-brd`.
+
+`rcS` still starts `cloud-client`, which is left alone: it has no address of its own and initiates nothing. It is a
+local helper that waits on a socket for commands (`Recv pull fw info https cmd`, `Recv https download cmd`, …) and so
+does the HTTPS fetches `cloud-brd` asks for. With `cloud-brd` not running, nothing asks.
+
+This is close to, but not the same as, the EAP772/F76 build, where the web UI's cloud switch starts and stops the
+daemon. The difference is in the prebuilt binaries:
+
+| | shipped F65 | this build (EAP650 drop) | EAP772/F76 |
+|---|---|---|---|
+| `uclited` writes `/tmp/cloudDisable` when cloud is off | yes | **no** | yes |
+| `rc.eapcs` starts `cloud-brd` unless that file exists | yes | yes, added here | yes |
+| `rcS` starts `cloud-brd` unconditionally | no | was yes, removed here | no |
+
+So the gate is TP-Link's own and is now wired up as a shipped F65 wires it, but nothing in this drop ever writes the
+marker, which is why `rcS` writes it instead unless the opt-in file is there. The web UI's cloud switch cannot start
+`cloud-brd` here: this drop's `uclited` has no code for it (it does not contain the string, and no binary in the rootfs
+mentions `cloud-brd`). Taking the shipped F65's `uclited`, as was done for `client-state` in the F76 tree, is not an
+option either — it is from an older firmware generation and needs `libssl.so.1.0.0`/`libcrypto.so.1.0.0` and
+`libble_lib.so`, while this drop's needs OpenSSL 1.1 and `libclustershm_lib.so` (284 against 316 imported symbols).
+
+If a later drop ships a `uclited` that does write the marker, delete the `rcS` block and the behaviour becomes the
+shipped one, with the UI switch working.
 
 ### Build pipeline
 

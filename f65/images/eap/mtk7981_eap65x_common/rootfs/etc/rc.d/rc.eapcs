@@ -60,6 +60,9 @@ if [ -f "/etc/tdbEnable" ] && [ -f "/usr/bin/tdb" ];then
 tdb -r /usr/bin/httpd_portal &
 tdb -r /usr/bin/tdpd &
 tdb -r /usr/bin/eap-cs &
+if [ -f "/usr/bin/cloud-brd" ] && [ ! -f "/tmp/cloudDisable" ];then
+tdb -r /usr/bin/cloud-brd -c /etc/cloud_config.cfg &
+fi
 else
 /usr/bin/httpd_portal &
 /usr/bin/tdpd &
@@ -80,6 +83,9 @@ Repeater)
 	esac
 esac
 
+if [ -f "/usr/bin/cloud-brd" ] && [ ! -f "/tmp/cloudDisable" ];then
+/usr/bin/cloud-brd -c /etc/cloud_config.cfg &
+fi
 fi
 
 if [ -f "/sbin/enable_phy" ];then

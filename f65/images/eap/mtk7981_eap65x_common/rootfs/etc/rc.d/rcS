@@ -181,10 +181,17 @@ else
 echo "cluster-slave is not supported"
 fi
 
-if [ -f "/usr/bin/cloud-brd" ];then
-/usr/bin/cloud-brd -c /etc/cloud_config.cfg &
-else
-echo "cloud-brd is not supported"
+# cloud-brd is the daemon that talks to TP-Link's Omada cloud. It is not started here any more:
+# rc.eapcs starts it, after uclited, unless /tmp/cloudDisable exists -- which is how a shipped
+# F65 does it. This drop's uclited never writes that marker (a shipped unit's does), so without
+# the line below cloud-brd would start on every boot whatever the cloud setting says. So the
+# cloud connection is off unless it has been opted into, on this unit, by
+#   touch /tp_data/user_data/cloudEnable
+# /tp_data is mounted by mount_tpdata above and survives a reboot and a firmware upgrade.
+# See README "Cloud connection" -- the web UI's cloud toggle cannot start cloud-brd on F65.
+if [ ! -f "/tp_data/user_data/cloudEnable" ];then
+touch /tmp/cloudDisable
+echo "cloud-brd disabled (no /tp_data/user_data/cloudEnable)"
 fi
 
 if [ -f "/usr/bin/cloud-client" ];then

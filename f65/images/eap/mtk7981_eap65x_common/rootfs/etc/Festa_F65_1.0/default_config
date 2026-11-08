@@ -764,6 +764,6 @@
 		"childAPList":	[]
 	},
 	"CLOUDMANAGE":	{
-		"enable":	true
+		"enable":	false
 	}
 }
